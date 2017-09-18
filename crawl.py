@@ -1,19 +1,42 @@
 import datetime as dt
 import pandas as pd, numpy as np
-from utils import config as cfg, io
+from utils import config as cfg, mapping, io
 from WindPy import w as wind
+import tushare as ts
+
+df = ts.get_tick_data('600848',date='2014-01-09')
+
+df = ts.get_stock_basics()
+
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
 
 wind.start()
-
 engine = cfg.default_engine
+
+wind.wsd("000001.SZ",
+         "comp_name, comp_name_eng, founddate, regcapital, business,\
+         briefing,majorproducttype,majorproductname,\
+         employee, province, city, address,office,boardchairmen, ceo, crtindpdirector,frmindpdirector,\
+         ev, mkt_cap_ard, ev3, pe_ttm, val_pe_deducted_ttm, pe_lyr, pb_lf, pb_mrq ,ps_ttm, ps_lyr, pcf_ocf_ttm, \
+         pcf_ncf_ttm, pcf_ocflyr, pcf_nflyr, dividendyield, dividendyield2, mkt_cap, mkt_cap_CSRC, mkt_freeshares, "
+         "mkt_cap_float",
+         "2017-03-25", "2017-04-23", "unit=1;currencyType=;rptYear=2016")
 
 q = pd.read_sql("SELECT * FROM tb1", engine)
 
 wind.wset()
 
-w.wset("sectorconstituent", "date=2017-04-20;sectorid=a001010900000000")
+wind.wset("sectorconstituent", "date=2017-04-20;sectorid=a001010900000000")
 
-w.wset("sectorconstituent","date=2017-04-24;sectorid=a001010900000000")
+w.wsd("000001.SZ",
+      "comp_name,comp_name_eng,founddate,regcapital,business,briefing,majorproducttype,majorproductname,employee,province,city,address,office,boardchairmen,ceo,crtindpdirector,frmindpdirector,ev,mkt_cap_ard,ev3,pe_ttm,val_pe_deducted_ttm,pe_lyr,pb_lf,pb_mrq,ps_ttm,ps_lyr,pcf_ocf_ttm,pcf_ncf_ttm,pcf_ocflyr,pcf_nflyr,dividendyield,dividendyield2,mkt_cap,mkt_cap_CSRC,mkt_freeshares,mkt_cap_float",
+      "2017-03-25", "2017-04-23", "unit=1;currencyType=;rptYear=2016")
+
+w.wsd("000001.SZ", "mkt_cap_float", "2017-03-25", "2017-04-23", "unit=1;currencyType=")
+
+w.wsd("000001.SZ", "div_cashbeforetax2,div_cashaftertax2,close,high,low,open,volume,amt,dealnum,oi,oi_chg",
+      "2017-03-25", "2017-04-23", "currencyType=BB")
 
 
 def fetch_swsinfo():
@@ -35,8 +58,10 @@ def fetch_priceinfo(date_s, date_e):
     date_e_str = date_e.strftime("%Y-%m-%d")
     result = pd.DataFrame()
     ipo_lists = wind.wset("listedsecuritygeneralview", "sectorid=a001010100000000").Data[0]
-    cols_query = ["sec_name", "lastradeday_s", "close", "mkt_cap_ard", "mkt_cap_float", "pe_ttm", "val_pe_deducted_ttm", "pe_lyr", "trade_status"]
-    cols_db = ["subject_name", "date", "closing_price", "market_price", "circulated_price", "pe_ttm", "pe_deducted_tmm", "pe_lyr", "status"]
+    cols_query = ["sec_name", "lastradeday_s", "close", "mkt_cap_ard", "mkt_cap_float", "pe_ttm", "val_pe_deducted_ttm",
+                  "pe_lyr", "trade_status"]
+    cols_db = ["subject_name", "date", "closing_price", "market_price", "circulated_price", "pe_ttm", "pe_deducted_tmm",
+               "pe_lyr", "status"]
     for security_id in ipo_lists:
         print(security_id)
         cols_query_str = ",".join(cols_query)
@@ -58,9 +83,11 @@ def fetch_priceinfo(date_s, date_e):
     result.circulated_price = result.circulated_price.astype(np.float) / 100000000
     return result
 
-# w.wsd("000001.SZ", "pe_ttm,val_pe_deducted_ttm,pe_lyr,ev,mkt_cap_ard,ev3", "2016-11-01", "2016-12-31", "unit=1;currencyType=")
+
 date_s, date_e = dt.date(2016, 11, 1), dt.date(2016, 12, 31)
 d = fetch_priceinfo(date_s, date_e)
+
+
 # 150251.SZ
 
 # Days=Alldays
