@@ -104,7 +104,12 @@ def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False)
             sql_main = sql_main.replace("%", "%%")
 
         if debug is False:
-            conn.execute(sql_main)
+            try:
+                conn.execute(sql_main)
+            except pymysql.err.InternalError as e:
+                print("ENCOUNTERING ERROR: {e}, RETRYING".format(e=e))
+                time.sleep(10)
+                conn.execute(sql_main)
         else:
             sqls.append(sql_main)
     if debug:

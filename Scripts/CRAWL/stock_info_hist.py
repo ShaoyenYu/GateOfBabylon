@@ -20,6 +20,7 @@ cols_valuation_ = ["pe", "pb", "float_share", "total_share", "total_asset", "liq
 def trans_date(datetime_num):
     try:
         return dt.datetime.strptime(str(datetime_num), "%Y%m%d").date()
+
     except:
         return None
 
@@ -50,7 +51,7 @@ def fetch(date):
 
 
 def main():
-    dates = pd.date_range(dt.date(2016, 8, 9), dt.date(2017, 9, 18), freq="B")
+    dates = pd.date_range(dt.date(2017, 9, 18), dt.date(2017, 9, 21), freq="B")
     tasks = [date.date() for date in dates]
     pool = ThreadPool(20)
     errors = pool.map(fetch, tasks)

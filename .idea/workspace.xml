@@ -2,8 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="155538f1-35f2-4a08-8bb7-f3bc96c0c4b7" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/stock_info].py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/CRAWL/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/CRAWL/stock_price.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ETL/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ETL/stock_info.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/__init__.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utils/io.py" afterPath="$PROJECT_DIR$/utils/io.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/Scripts/stock_info].py" afterPath="$PROJECT_DIR$/Scripts/CRAWL/stock_info_hist.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,147 +22,120 @@
     <option name="PATCH_PATH" value="" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="vertical" split-proportion="0.72940224">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-          <file leaf-file-name="crawl.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/crawl.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="209">
-                  <caret line="23" column="73" lean-forward="false" selection-start-line="23" selection-start-column="73" selection-end-line="23" selection-end-column="73" />
-                  <folding>
-                    <element signature="e#0#21#0" expanded="true" />
-                    <element signature="e#390#864#0" expanded="false" />
-                    <element signature="e#1843#2362#0" expanded="false" />
-                    <element signature="e#1967#2258#0" expanded="false" />
-                    <element signature="e#2406#3717#0" expanded="false" />
-                    <element signature="e#2629#2776#0" expanded="false" />
-                    <element signature="e#2791#2932#0" expanded="false" />
-                    <element signature="e#2975#3396#0" expanded="false" />
-                    <element signature="e#3216#3266#0" expanded="false" />
-                    <element signature="e#3819#3830#0" expanded="false" />
-                    <element signature="e#4093#4306#0" expanded="false" />
-                    <element signature="e#4101#4200#0" expanded="false" />
-                    <element signature="e#4244#4306#0" expanded="false" />
-                    <marker date="1505740447650" expanded="false" signature="958:975" ph="SELECT * FRO... tb1" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="security_info.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/security_info.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="529">
-                  <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-                  <folding>
-                    <element signature="e#0#19#0" expanded="true" />
-                    <marker date="1505660923161" expanded="true" signature="178:224" ph="SELECT DISTI... fun" />
-                    <marker date="1505660923161" expanded="true" signature="178:238" ph="SELECT DISTI... security_price" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="indicator.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/utils/algorithm/indicator.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/utils/config.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="46">
-                  <caret line="2" column="91" lean-forward="false" selection-start-line="2" selection-start-column="91" selection-end-line="2" selection-end-column="91" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="stock_info].py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/Scripts/stock_info].py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="432">
-                  <caret line="35" column="31" lean-forward="true" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="io.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/utils/io.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="69">
-                  <caret line="8" column="35" lean-forward="false" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
-                  <folding>
-                    <element signature="e#142#270#0" expanded="false" />
-                    <element signature="e#155#226#0" expanded="false" />
-                    <element signature="e#308#885#0" expanded="false" />
-                    <element signature="e#364#547#0" expanded="false" />
-                    <element signature="e#584#701#0" expanded="false" />
-                    <element signature="e#738#885#0" expanded="false" />
-                    <element signature="e#974#3549#0" expanded="false" />
-                    <element signature="e#974#1809#1" expanded="false" />
-                    <element signature="e#2042#3515#0" expanded="false" />
-                    <element signature="e#2202#2331#0" expanded="false" />
-                    <element signature="e#2376#2624#0" expanded="false" />
-                    <element signature="e#2669#2804#0" expanded="false" />
-                    <element signature="e#3611#4027#0" expanded="false" />
-                    <element signature="e#3611#3717#1" expanded="false" />
-                    <element signature="e#3811#4027#0" expanded="false" />
-                    <element signature="e#4069#4832#0" expanded="false" />
-                    <element signature="e#4160#4360#0" expanded="false" />
-                    <element signature="e#4379#4811#0" expanded="false" />
-                    <element signature="e#4437#4606#0" expanded="false" />
-                    <element signature="e#4711#4766#0" expanded="false" />
-                    <element signature="e#4873#4999#0" expanded="false" />
-                    <element signature="e#4886#4959#0" expanded="false" />
-                    <element signature="e#5037#5228#0" expanded="false" />
-                    <element signature="e#5335#6019#0" expanded="false" />
-                    <element signature="e#5627#6019#0" expanded="false" />
-                    <element signature="e#6069#6643#0" expanded="false" />
-                    <element signature="e#6348#6590#0" expanded="false" />
-                    <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-                    <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/utils/__init__.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="0">
-                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-          <file leaf-file-name="mapping.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/utils/mapping.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="184">
-                  <caret line="37" column="48" lean-forward="false" selection-start-line="37" selection-start-column="48" selection-end-line="37" selection-end-column="48" />
-                  <folding>
-                    <element signature="e#5#1220#0" expanded="false" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
+      <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utils/config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="69">
+              <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stock_info_hist.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Scripts/CRAWL/stock_info_hist.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="454">
+              <caret line="53" column="35" lean-forward="false" selection-start-line="53" selection-start-column="35" selection-end-line="53" selection-end-column="35" />
+              <folding>
+                <element signature="e#0#35#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fundamental.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/tushare/stock/fundamental.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="736">
+              <caret line="39" column="4" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="39" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stock_price.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/CRAWL/stock_price.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#35#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stock_info.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/ETL/stock_info.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="460">
+              <caret line="21" column="27" lean-forward="false" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
+              <folding>
+                <marker date="1505972389450" expanded="true" signature="111:241" ph="SELECT * FRO... stock_info_hist" />
+                <marker date="1505972389450" expanded="true" signature="111:250" ph="SELECT * FRO... stock_info_hist" />
+                <marker date="1505972389450" expanded="true" signature="111:251" ph="SELECT * FRO... stock_info_hist" />
+                <marker date="1505972389450" expanded="true" signature="111:268" ph="SELECT * FRO... stock_info_hist" />
+                <marker date="1505972389450" expanded="true" signature="111:306" ph="SELECT * FRO... stock_info_hist" />
+                <marker date="1505972389450" expanded="true" signature="161:234" ph="SELECT stock... stock_info_hist" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="io.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utils/io.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="391">
+              <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+              <folding>
+                <element signature="e#142#270#0" expanded="false" />
+                <element signature="e#155#226#0" expanded="false" />
+                <element signature="e#308#885#0" expanded="false" />
+                <element signature="e#364#547#0" expanded="false" />
+                <element signature="e#584#701#0" expanded="false" />
+                <element signature="e#738#885#0" expanded="false" />
+                <element signature="e#974#1809#1" expanded="false" />
+                <element signature="e#2042#3728#0" expanded="false" />
+                <element signature="e#2202#2331#0" expanded="false" />
+                <element signature="e#2376#2624#0" expanded="false" />
+                <element signature="e#2669#2804#0" expanded="false" />
+                <element signature="e#3445#3680#0" expanded="false" />
+                <element signature="e#3556#3680#0" expanded="false" />
+                <element signature="e#3824#4240#0" expanded="false" />
+                <element signature="e#3824#3930#1" expanded="false" />
+                <element signature="e#4024#4240#0" expanded="false" />
+                <element signature="e#4282#5045#0" expanded="false" />
+                <element signature="e#4373#4573#0" expanded="false" />
+                <element signature="e#4592#5024#0" expanded="false" />
+                <element signature="e#4650#4819#0" expanded="false" />
+                <element signature="e#4924#4979#0" expanded="false" />
+                <element signature="e#5086#5212#0" expanded="false" />
+                <element signature="e#5099#5172#0" expanded="false" />
+                <element signature="e#5250#5441#0" expanded="false" />
+                <element signature="e#5548#6232#0" expanded="false" />
+                <element signature="e#5840#6232#0" expanded="false" />
+                <element signature="e#6282#6856#0" expanded="false" />
+                <element signature="e#6561#6803#0" expanded="false" />
+                <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+                <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utils/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -185,12 +164,16 @@
         <option value="$PROJECT_DIR$/utils/models.py" />
         <option value="$PROJECT_DIR$/models.py" />
         <option value="$PROJECT_DIR$/utils/mapping.py" />
-        <option value="$PROJECT_DIR$/utils/io.py" />
         <option value="$PROJECT_DIR$/security_info.py" />
         <option value="$PROJECT_DIR$/utils/algorithm/indicator.py" />
         <option value="$PROJECT_DIR$/crawl.py" />
         <option value="$PROJECT_DIR$/utils/config.py" />
         <option value="$PROJECT_DIR$/Scripts/stock_info].py" />
+        <option value="$PROJECT_DIR$/Scripts/CRAWL/stock_info.py" />
+        <option value="$PROJECT_DIR$/Scripts/CRAWL/stock_price.py" />
+        <option value="$PROJECT_DIR$/Scripts/ETL/stock_info.py" />
+        <option value="$PROJECT_DIR$/utils/io.py" />
+        <option value="$PROJECT_DIR$/Scripts/CRAWL/stock_info_hist.py" />
       </list>
     </option>
   </component>
@@ -231,6 +214,30 @@
             <path>
               <item name="GateOfBabylon" type="b2602c69:ProjectViewProjectNode" />
               <item name="GateOfBabylon" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="GateOfBabylon" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GateOfBabylon" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+              <item name="CRAWL" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="GateOfBabylon" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GateOfBabylon" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+              <item name="CRAWL" type="462c0819:PsiDirectoryNode" />
+              <item name="stock_info_hist.py" type="8704e2dd:PyFileNode" />
+            </path>
+            <path>
+              <item name="GateOfBabylon" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GateOfBabylon" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+              <item name="ETL" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="GateOfBabylon" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GateOfBabylon" type="462c0819:PsiDirectoryNode" />
               <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -243,12 +250,12 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../3.5.2/fof_api" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../3.5.2/IndexCalculation" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_interpreter_path" value="C:/Program Files (x86)/nodejs/node" />
@@ -257,6 +264,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Projects\Python\3.6\GateOfBabylon\Scripts\CRAWL" />
       <recent name="D:\Projects\Python\3.6\GateOfBylon" />
     </key>
   </component>
@@ -512,7 +520,14 @@
       <option name="project" value="LOCAL" />
       <updated>1505754615460</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="#">
+      <created>1505863648595</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1505863648595</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TodoView">
@@ -525,19 +540,19 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="2578" height="1408" extended-state="6" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.08666134" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15182403" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32869297" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33143508" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42435622" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33198708" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4816294" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1014377" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32869297" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -591,62 +606,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/utils/io.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2725">
-          <caret line="112" column="23" lean-forward="false" selection-start-line="112" selection-start-column="23" selection-end-line="112" selection-end-column="23" />
-          <folding>
-            <element signature="e#142#270#0" expanded="false" />
-            <element signature="e#155#226#0" expanded="false" />
-            <element signature="e#308#885#0" expanded="false" />
-            <element signature="e#364#547#0" expanded="false" />
-            <element signature="e#584#701#0" expanded="false" />
-            <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
-            <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
-            <element signature="e#2202#2331#0" expanded="false" />
-            <element signature="e#2376#2624#0" expanded="false" />
-            <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils/mapping.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#5#1220#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/crawl.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
@@ -681,29 +640,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -760,29 +720,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -839,29 +800,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -918,29 +880,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -1014,29 +977,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -1100,29 +1064,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -1186,29 +1151,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -1264,29 +1230,30 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
@@ -1391,7 +1358,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/utils/mapping.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
+        <state relative-caret-position="57">
           <caret line="37" column="48" lean-forward="false" selection-start-line="37" selection-start-column="48" selection-end-line="37" selection-end-column="48" />
           <folding>
             <element signature="e#5#1220#0" expanded="false" />
@@ -1399,17 +1366,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/algorithm/indicator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/security_info.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="529">
+        <state relative-caret-position="552">
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
@@ -1421,8 +1380,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/crawl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="23" column="73" lean-forward="false" selection-start-line="23" selection-start-column="73" selection-end-line="23" selection-end-column="73" />
+        <state relative-caret-position="391">
+          <caret line="22" column="25" lean-forward="true" selection-start-line="22" selection-start-column="25" selection-end-line="22" selection-end-column="25" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
             <element signature="e#390#864#0" expanded="false" />
@@ -1442,10 +1401,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/io.py">
+    <entry file="file://$PROJECT_DIR$/utils/algorithm/indicator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="69">
-          <caret line="8" column="35" lean-forward="false" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
+          <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/ETL/stock_info.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="460">
+          <caret line="21" column="27" lean-forward="false" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
+          <folding>
+            <marker date="1505972389450" expanded="true" signature="111:241" ph="SELECT * FRO... stock_info_hist" />
+            <marker date="1505972389450" expanded="true" signature="111:250" ph="SELECT * FRO... stock_info_hist" />
+            <marker date="1505972389450" expanded="true" signature="111:251" ph="SELECT * FRO... stock_info_hist" />
+            <marker date="1505972389450" expanded="true" signature="111:268" ph="SELECT * FRO... stock_info_hist" />
+            <marker date="1505972389450" expanded="true" signature="111:306" ph="SELECT * FRO... stock_info_hist" />
+            <marker date="1505972389450" expanded="true" signature="161:234" ph="SELECT stock... stock_info_hist" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/io.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
           <folding>
             <element signature="e#142#270#0" expanded="false" />
             <element signature="e#155#226#0" expanded="false" />
@@ -1453,46 +1443,59 @@
             <element signature="e#364#547#0" expanded="false" />
             <element signature="e#584#701#0" expanded="false" />
             <element signature="e#738#885#0" expanded="false" />
-            <element signature="e#974#3549#0" expanded="false" />
             <element signature="e#974#1809#1" expanded="false" />
-            <element signature="e#2042#3515#0" expanded="false" />
+            <element signature="e#2042#3728#0" expanded="false" />
             <element signature="e#2202#2331#0" expanded="false" />
             <element signature="e#2376#2624#0" expanded="false" />
             <element signature="e#2669#2804#0" expanded="false" />
-            <element signature="e#3611#4027#0" expanded="false" />
-            <element signature="e#3611#3717#1" expanded="false" />
-            <element signature="e#3811#4027#0" expanded="false" />
-            <element signature="e#4069#4832#0" expanded="false" />
-            <element signature="e#4160#4360#0" expanded="false" />
-            <element signature="e#4379#4811#0" expanded="false" />
-            <element signature="e#4437#4606#0" expanded="false" />
-            <element signature="e#4711#4766#0" expanded="false" />
-            <element signature="e#4873#4999#0" expanded="false" />
-            <element signature="e#4886#4959#0" expanded="false" />
-            <element signature="e#5037#5228#0" expanded="false" />
-            <element signature="e#5335#6019#0" expanded="false" />
-            <element signature="e#5627#6019#0" expanded="false" />
-            <element signature="e#6069#6643#0" expanded="false" />
-            <element signature="e#6348#6590#0" expanded="false" />
-            <marker date="1505660312845" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
-            <marker date="1505660312845" expanded="false" signature="3902:3938" ph="DELETE FROM " />
+            <element signature="e#3445#3680#0" expanded="false" />
+            <element signature="e#3556#3680#0" expanded="false" />
+            <element signature="e#3824#4240#0" expanded="false" />
+            <element signature="e#3824#3930#1" expanded="false" />
+            <element signature="e#4024#4240#0" expanded="false" />
+            <element signature="e#4282#5045#0" expanded="false" />
+            <element signature="e#4373#4573#0" expanded="false" />
+            <element signature="e#4592#5024#0" expanded="false" />
+            <element signature="e#4650#4819#0" expanded="false" />
+            <element signature="e#4924#4979#0" expanded="false" />
+            <element signature="e#5086#5212#0" expanded="false" />
+            <element signature="e#5099#5172#0" expanded="false" />
+            <element signature="e#5250#5441#0" expanded="false" />
+            <element signature="e#5548#6232#0" expanded="false" />
+            <element signature="e#5840#6232#0" expanded="false" />
+            <element signature="e#6282#6856#0" expanded="false" />
+            <element signature="e#6561#6803#0" expanded="false" />
+            <marker date="1505973094225" expanded="false" signature="2388:2412" ph="INSERT INTO `missing_value`... " />
+            <marker date="1505973094225" expanded="false" signature="4115:4151" ph="DELETE FROM " />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/config.py">
+    <entry file="file://$PROJECT_DIR$/Scripts/CRAWL/stock_price.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="46">
-          <caret line="2" column="91" lean-forward="false" selection-start-line="2" selection-start-column="91" selection-end-line="2" selection-end-column="91" />
+          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/tushare/stock/fundamental.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="736">
+          <caret line="39" column="4" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="39" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Scripts/stock_info].py">
+    <entry file="file://$PROJECT_DIR$/Scripts/CRAWL/stock_info_hist.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="35" column="31" lean-forward="true" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
-          <folding />
+        <state relative-caret-position="454">
+          <caret line="53" column="35" lean-forward="false" selection-start-line="53" selection-start-column="35" selection-end-line="53" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
