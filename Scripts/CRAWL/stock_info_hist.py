@@ -51,7 +51,7 @@ def fetch(date):
 
 
 def main():
-    dates = pd.date_range(dt.date(2017, 9, 18), dt.date(2017, 9, 21), freq="B")
+    dates = pd.date_range(dt.date.today() - dt.timedelta(7), dt.date.today(), freq="B")
     tasks = [date.date() for date in dates]
     pool = ThreadPool(20)
     errors = pool.map(fetch, tasks)
