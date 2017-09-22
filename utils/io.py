@@ -1,9 +1,15 @@
 import os
+import typing
+
 import pandas as pd
 import shutil
 import sys
 import re
+
+import pymysql
+import time
 from openpyxl import load_workbook
+from pymysql.cursors import Cursor
 
 
 def read_csv(path, header="infer"):
@@ -34,6 +40,7 @@ def sql_cols(df, usage="sql"):
 
 
 def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False):
+    # type: (str, Cursor, pd.DataFrame, str, int, bool) -> typing.Optional[list]
     """
     Dummy of pandas.to_sql, support "REPLACE INTO ..." and "INSERT ... ON DUPLICATE KEY UPDATE (keys) VALUES (values)"
     SQL statement.
@@ -57,7 +64,7 @@ def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False)
         None
     """
 
-    df = dataframe.copy(deep=False)
+    df = dataframe.copy(deep=False)  # type: pd.DataFrame
     df = df.fillna("None")
     df = df.applymap(lambda x: re.sub('([\'\"\\\])', '\\\\\g<1>', str(x)))
     cols_str = sql_cols(df)
