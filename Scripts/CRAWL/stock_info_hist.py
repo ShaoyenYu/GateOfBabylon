@@ -1,7 +1,7 @@
 from utils import io, config as cfg
 import datetime as dt
 import pandas as pd
-import tushare as tu
+import tushare as ts
 from multiprocessing.dummy import Pool as ThreadPool
 
 engine = cfg.default_engine
@@ -20,7 +20,6 @@ cols_valuation_ = ["pe", "pb", "float_share", "total_share", "total_asset", "liq
 def trans_date(datetime_num):
     try:
         return dt.datetime.strptime(str(datetime_num), "%Y%m%d").date()
-
     except:
         return None
 
@@ -29,7 +28,7 @@ def fetch(date):
     print(date)
     try:
         err_list = {}
-        df = tu.get_stock_basics(date.strftime("%Y-%m-%d"))
+        df = ts.get_stock_basics(date.strftime("%Y-%m-%d"))
         df["timeToMarket"] = df["timeToMarket"].apply(lambda x: trans_date(x))
         df["date"] = date
         df["stock_id"] = df.index
