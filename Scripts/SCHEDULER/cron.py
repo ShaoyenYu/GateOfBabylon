@@ -5,8 +5,10 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
-from Scripts.CRAWL import stock_info_hist
 from Scripts.ETL import stock_info
+from Scripts.CRAWL import (
+    stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60
+)
 
 jobstores = {
     # "mongo": MongoDBJobStore(),  # equal to {"type": "mongodb"},
@@ -15,7 +17,7 @@ jobstores = {
 }
 job_defaults = {
     "coalesce": False,
-    "max_instances": 3
+    "max_instances": 20
 }
 executors = {
     "default": ThreadPoolExecutor(max_workers=20),  # equal to "default": {"type": "threadpool", "max_workers": 20},
@@ -30,6 +32,10 @@ def main():
     # .. do something else here, maybe add jobs etc.
     scheduler.add_job(stock_info_hist.main, "cron", minute=30)
     scheduler.add_job(stock_info.main, "cron", minute=35)
+    scheduler.add_job(stock_kdata_5.main, "cron", minute=5)
+    scheduler.add_job(stock_kdata_15.main, "cron", minute=10)
+    scheduler.add_job(stock_kdata_30.main, "cron", minute=15)
+    scheduler.add_job(stock_kdata_60.main, "cron", minute=20)
 
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
 
