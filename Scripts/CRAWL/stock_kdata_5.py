@@ -1,3 +1,4 @@
+import datetime as dt
 from utils import io, config as cfg
 import pandas as pd
 import tushare as ts
@@ -22,7 +23,6 @@ def fetch_kdata(stock_id, ktype):
     Returns:
 
     """
-    print(f"fetching {stock_id}")
     try:
         autypes = (None, "qfq", "hfq")
         dfs = {
@@ -56,11 +56,17 @@ def main():
 
         with engine.connect() as conn:
             for result in results:
-                if type(result) is pd.DataFrame:
-                    io.to_sql("stock_kdata_5", conn, result)
-                else:
+                try:
+                    if type(result) is pd.DataFrame:
+                        io.to_sql("stock_kdata_5", conn, result)
+                    else:
+                        errs.append(result)
+                except Exception as e:
                     errs.append(result)
+                    continue
+
             conn.close()
+        print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; RECORDS NUM: {len(results)};")
         return errs
 
     except Exception as e:
