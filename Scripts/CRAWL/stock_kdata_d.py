@@ -48,6 +48,7 @@ def fetch_kdata(stock_id, ktype, start=None, end=None):
 
 
 def main():
+    print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; START;")
     engine = cfg.default_engine
     stock_ids = fetch_stockid(engine)
     errs = []
@@ -72,7 +73,7 @@ def main():
                     errs.append(result)
                     continue
             conn.close()
-        print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; RECORDS NUM: {len(results)};")
+        print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; RECORDS NUM: {len(results)}; DONE;")
         return errs
 
     except Exception as e:

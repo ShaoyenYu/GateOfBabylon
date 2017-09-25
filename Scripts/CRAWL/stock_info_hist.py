@@ -1,5 +1,5 @@
-from utils import io, config as cfg
 import datetime as dt
+from utils import io, config as cfg
 import pandas as pd
 import tushare as ts
 from multiprocessing.dummy import Pool as ThreadPool
@@ -25,7 +25,6 @@ def trans_date(datetime_num):
 
 
 def fetch(date):
-    print(date)
     try:
         err_list = {}
         df = ts.get_stock_basics(date.strftime("%Y-%m-%d"))
@@ -50,13 +49,16 @@ def fetch(date):
 
 
 def main():
+    print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; START;")
     dates = pd.date_range(dt.date.today() - dt.timedelta(7), dt.date.today(), freq="B")
     tasks = [date.date() for date in dates]
     pool = ThreadPool(20)
     errors = pool.map(fetch, tasks)
     pool.close()
     pool.join()
+    print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; RECORDS NUM: {len(tasks)}; DONE;")
     return errors
+
 
 if __name__ == "__main__":
     q = main()
