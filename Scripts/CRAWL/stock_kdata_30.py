@@ -10,7 +10,7 @@ def fetch_stockid(engine):
     return ids
 
 
-def fetch_k_price(stock_id, ktype):
+def fetch_kdata(stock_id, ktype):
     """
 
     Args:
@@ -50,7 +50,7 @@ def main():
     errs = []
     tpool = ThreadPool(50)
     try:
-        results = tpool.map(partial(fetch_k_price, ktype="30"), stock_ids)
+        results = tpool.map(partial(fetch_kdata, ktype="30"), stock_ids)
         tpool.close()
         tpool.join()
 
