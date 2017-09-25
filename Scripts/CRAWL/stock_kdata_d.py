@@ -10,7 +10,7 @@ def fetch_stockid(engine):
     return ids
 
 
-def fetch_kdata(stock_id, ktype):
+def fetch_kdata(stock_id, ktype, start=None, end=None):
     """
 
     Args:
@@ -24,9 +24,12 @@ def fetch_kdata(stock_id, ktype):
     """
     print(f"fetching {stock_id}")
     try:
+        start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
+        end = end.strftime("%Y-%m-%d") if end is not None else None
+
         autypes = (None, "qfq", "hfq")
         dfs = {
-            autype: ts.get_k_data(stock_id, ktype=ktype, autype=autype) for autype in autypes
+            autype: ts.get_k_data(stock_id, ktype=ktype, autype=autype, start=start, end=end) for autype in autypes
         }
         for k in dfs:
             dfs[k].index = dfs[k]["date"]
@@ -50,14 +53,14 @@ def main():
     errs = []
     tpool = ThreadPool(50)
     try:
-        results = tpool.map(partial(fetch_kdata, ktype="5"), stock_ids)
+        results = tpool.map(partial(fetch_kdata, ktype="D"), stock_ids)
         tpool.close()
         tpool.join()
 
         with engine.connect() as conn:
             for result in results:
                 if type(result) is pd.DataFrame:
-                    io.to_sql("stock_kdata_5", conn, result)
+                    io.to_sql("stock_kdata_d", conn, result)
                 else:
                     errs.append(result)
             conn.close()
@@ -71,7 +74,6 @@ if __name__ == "__main__":
     res = main()
 
 # # 加了ktype参数, 并且ktype !=0 时, start, end参数失效;
-# q = ts.get_h_data("002337")
 # q5 = ts.get_k_data('002337', ktype="5", start="2017-09-16", end="2017-09-21")
 # q5 = ts.get_k_data('002337', ktype="5", start="2017-09-16", end="2017-09-21", autype=None)
 # q51 = ts.get_k_data('002337', ktype="5", start="2017-09-16", end="2017-09-21", autype="qfq")
@@ -85,9 +87,15 @@ if __name__ == "__main__":
 # q15 = ts.get_k_data('002337', ktype="15", start="2017-09-15", end="2017-09-21")
 # q30 = ts.get_k_data('002337', ktype="30", start="2017-09-15", end="2017-09-21")
 # q60 = ts.get_k_data('002337', ktype="60", start="2017-09-15", end="2017-09-21")
-# qd = ts.get_k_data('002337', ktype="D")
+# import datetime as dt
+# q = ts.get_h_data("000001", start=dt.date(1990, 1, 1).strftime("%Y-%m-%d"))
+# q2 = fetch_kdata("000810", ktype="D", start=dt.date(2017, 7, 1), end=dt.date(2017,7,7))
+#
+# q = ts.get_h_data("000001")
+# q = ts.get_tick_data()
+# qd = ts.get_k_data('002337', ktype="D", start="19900101")
 # qw = ts.get_k_data('002337', ktype="W")
 # qm = ts.get_k_data('002337', ktype="M")
-
-
 # ts.get_hist_data()
+
+
