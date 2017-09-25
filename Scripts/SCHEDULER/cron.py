@@ -32,10 +32,14 @@ def main():
     # .. do something else here, maybe add jobs etc.
     scheduler.add_job(stock_info_hist.main, "cron", minute=30)
     scheduler.add_job(stock_info.main, "cron", minute=35)
-    scheduler.add_job(stock_kdata_5.main, "cron", minute=5)
-    scheduler.add_job(stock_kdata_15.main, "cron", minute=10)
-    scheduler.add_job(stock_kdata_30.main, "cron", minute=15)
-    scheduler.add_job(stock_kdata_60.main, "cron", minute=20)
+    scheduler.add_job(stock_kdata_5.main, "cron", day_of_week="mon-fri", hour="10-12,14-16,18,21,23", minute="15,45")
+    scheduler.add_job(stock_kdata_15.main, "cron", day_of_week="mon-fri", hour="10-12,14-16,18,21,23", minute="40")
+    scheduler.add_job(stock_kdata_30.main, "cron", day_of_week="mon-fri", hour="10-12,14-16,18,21,23", minute="45")
+    scheduler.add_job(stock_kdata_60.main, "cron", day_of_week="mon-fri", hour="10-12,14-16,18,21,23", minute="5")
+    # scheduler.add_job(stock_kdata_5.main, "cron", minute=5)
+    # scheduler.add_job(stock_kdata_15.main, "cron", minute=10)
+    # scheduler.add_job(stock_kdata_30.main, "cron", minute=15)
+    # scheduler.add_job(stock_kdata_60.main, "cron", minute=20)
 
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
 
