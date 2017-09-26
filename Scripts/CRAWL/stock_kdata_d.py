@@ -23,7 +23,6 @@ def fetch_kdata(stock_id, ktype, start=None, end=None):
     Returns:
 
     """
-    print(f"fetching {stock_id}")
     try:
         start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
         end = end.strftime("%Y-%m-%d") if end is not None else None
