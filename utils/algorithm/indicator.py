@@ -1,109 +1,110 @@
 import numpy as np
 import pandas as pd
-import datetime as dt
-from dateutil.relativedelta import relativedelta
-from utils import config as cfg
 
 
 class Derivative:
-    class Return:
-            @classmethod
-            def return_series(cls, frame):
-                """
+    # Returns
+    @classmethod
+    def return_series(cls, frame):
+        """"""
+        return (frame / frame.shift(1) - 1)[1:]
 
-                Args:
-                    frame: pandas.DataFrame
-                    DataFrame with datetime-like index, and each column vector contains whole series of a subject.
+    @classmethod
+    def accumulative_return(cls, frame: pd.DataFrame):
+        """"""
 
-                Returns:
+        return (frame / frame.shift(len(frame) - 1))[-1:]
 
-                """
+    @classmethod
+    def annualized_return(cls, frame: pd.DataFrame, period: int, method="a"):
+        """
 
-                return (frame / frame.shift(1) - 1)[1:]
+        Args:
+            frame: pandas.DataFrame
+                DataFrame with datetime-like index, and each column vector contains a whole time-series of a subject;
 
-            @classmethod
-            def accumulative_return(cls, frame: pd.DataFrame):
-                """"""
+            period: int
+                period_num in a year;
 
-                return (frame / frame.shift(len(frame) - 1))[-1:]
+            method: str, or None, optional {"a" or "accumulative", "m" or "mean", None}, default "a"
+                annualized method to use.
+                If "a", or "accumulative" passed, the annualized return is calculated as:
+                    (1 + r_acc) ** (period_num_in_a_year / periods_in_frame - 1) - 1;
+                elif "m", or "mean" passed, the annualized return is calculated  as:
+                    (1 + r_mean) ** period_num - 1
+                elif None is passed, the annualized method is automatically chosen, depends on the interval
+                of the frame. If interval is longer than 365 days, "mean" is chosen; otherwise "accumulative" is chosen;
 
-            @classmethod
-            def annualized_return(cls, frame: pd.DataFrame, period: int, method="a"):
-                """
+        Returns:
 
-                Args:
-                    frame:
-                    period:
-                    method:
+        """
 
-                Returns:
+        if method in {"a", "accumulative"}:
+            return (1 + cls.accumulative_return(frame)) ** (period / (len(frame) - 1)) - 1
 
-                """
+        elif method in {"m", "mean"}:
+            res = (1 + cls.return_series(frame).mean()) ** period - 1
 
-                if method in {"a", "accumulative"}:
-                    return (1 + cls.accumulative_return(frame)) ** (period / (len(frame) - 1)) - 1
+            # encapsulate pd.Series into pd.DataFrame
+            return pd.DataFrame(res, columns=[frame.index[-1:]]).T
 
-                elif method in {"m", "mean"}:
-                    res = (1 + cls.return_series(frame).mean()) ** period - 1
+        elif method is None:
+            interval = (frame.index[-1] - frame.index[0]).days
+            if interval > 365:
+                return cls.annualized_return(frame, period, "m")
+            else:
+                return cls.annualized_return(frame, period, "a")
 
-                    # encapsulate pd.Series into pd.DataFrame
-                    return pd.DataFrame(res, columns=[frame.index[-1:]]).T
+    @classmethod
+    def excess_return_a(cls, frame: pd.DataFrame, frame_bm: pd.DataFrame, period, method="a"):
+        """"""
 
-                elif method in {None, "auto"}:
-                    interval = (frame.index[-1] - frame.index[0]).days
-                    if interval > 365:
-                        return cls.annualized_return(frame, period, "m")
-                    else:
-                        return cls.annualized_return(frame, period, "a")
+        r_annu = cls.annualized_return(frame, period, method)
+        rbm_annu = cls.annualized_return(frame_bm, period, method)
+        return (r_annu.T - rbm_annu.T.unstack()).T
 
-            @classmethod
-            def excess_return_a(cls, frame: pd.DataFrame, frame_bm: pd.DataFrame, period, method="a"):
-                """"""
-                r_annu = cls.annualized_return(frame, period, method)
-                rbm_annu = cls.annualized_return(frame_bm, period, method)
-                return (r_annu.T - rbm_annu.T.unstack()).T
+    # Risk
+    @classmethod
+    def standard_deviation(cls, frame):
+        """"""
 
-            @classmethod
-            def sharpe_a(cls, frame, frame_rf):
-                """"""
+        res = np.std(cls.return_series(frame), ddof=1)
+        return pd.DataFrame(res, columns=[frame.index[-1:]]).T
 
+    @classmethod
+    def standard_deviation_a(cls, frame, period):
+        """"""
 
-def main():
-    from utils import config as cfg
+        return cls.standard_deviation(frame) * (period ** .5)
 
-    def get_testid(conn, num):
-        return str(
-            tuple(pd.read_sql(f"SELECT stock_id FROM stock_info WHERE date = '20170929' LIMIT 0, {num}", conn)[
-                      "stock_id"]))
+    @classmethod
+    def drawdown(cls, frame):
+        """"""
 
-    engine = cfg.default_engine
+        return (frame.cummax() - frame) / frame.cummax()
 
-    sids = get_testid(engine, 200)
-    df = pd.read_sql(f"SELECT stock_id, date, close_fadj FROM stock_kdata_d WHERE stock_id IN {sids}", engine)
-    q = df.copy()
-    q.index = pd.Index(q.date.tolist(), name="datetime")
+    @classmethod
+    def max_drawdown(cls, frame):
+        """"""
 
-    q = q[(q.index >= dt.datetime(2012, 9, 25)) & (q.index <= dt.datetime(2017, 9, 25))]
-    g = q.groupby(["date", "stock_id"])["close_fadj"]
-    a = g.last().unstack()
-    bm = a[["000001", "000002"]]
-    bm.columns = pd.Index(["a", "b"], name="bm_id")
+        return cls.drawdown(frame).cummax()
 
-    er = Derivative.Return.excess_return_a(a, bm, 250)
-    ra1 = Derivative.Return.annualized_return(a, 250, "a")
-    rabm = Derivative.Return.annualized_return(bm, 250, "a")
+    # Risk-adjusted Return
+    @classmethod
+    def sharpe_a(cls, frame, frame_rf, period, method="a"):
+        """
+        Annualized return earned in excess of the risk-free per unit of volatility.
 
-    # (ra1.T.unstack() - rabm.T).unstack()
-    # (ra1.T - rabm.T.unstack()).T
-    # ra1.sub(rabm.unstack(), axis=0)
+        Args:
+            frame:
+            frame_rf:
+            period:
+            method:
 
-    rs = Derivative.Return.return_series(a)
-    racc = Derivative.Return.accumulative_return(a)
+        Returns:
 
-    ra2 = Derivative.Return.annualized_return(a, 250, method="m")
-    ra3 = Derivative.Return.annualized_return(a, 250, "auto")
+        """
 
-    racc_bm = Derivative.Return.accumulative_return()
-    del q["date"]
-    g = q.groupby(["stock_id"])
-    g.plot()
+        er = cls.excess_return_a(frame, frame_rf, period, method)
+        std_a = cls.standard_deviation_a(frame, period)
+        return (er.T / std_a.T).T
