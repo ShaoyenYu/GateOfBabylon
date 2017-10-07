@@ -7,7 +7,8 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
 from Scripts.ETL import stock_info
 from Scripts.CRAWL import (
-    stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d
+    stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d,
+    index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d
 )
 
 jobstores = {
@@ -21,7 +22,7 @@ job_defaults = {
 }
 executors = {
     "default": ThreadPoolExecutor(max_workers=20),  # equal to "default": {"type": "threadpool", "max_workers": 20},
-    "processpool": ProcessPoolExecutor(max_workers=5)
+    "processpool": ProcessPoolExecutor(max_workers=10)
 }
 
 
@@ -30,17 +31,23 @@ def main():
     scheduler = BackgroundScheduler()
 
     # .. do something else here, maybe add jobs etc.
+    # Crawl stock info
     scheduler.add_job(stock_info_hist.main, "cron", minute=30)
     scheduler.add_job(stock_info.main, "cron", minute=35)
+
+    # Crawl stock price
     scheduler.add_job(stock_kdata_5.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="15,45")
     scheduler.add_job(stock_kdata_15.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="40")
     scheduler.add_job(stock_kdata_30.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="50")
     scheduler.add_job(stock_kdata_60.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="5")
     scheduler.add_job(stock_kdata_d.main, "cron", day_of_week="mon-sun", hour="5,11,17,23", minute="5")
-    # scheduler.add_job(stock_kdata_5.main, "cron", minute=5)
-    # scheduler.add_job(stock_kdata_15.main, "cron", minute=10)
-    # scheduler.add_job(stock_kdata_30.main, "cron", minute=15)
-    # scheduler.add_job(stock_kdata_60.main, "cron", minute=20)
+
+    # Crawl index
+    scheduler.add_job(index_kdata_5.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="15,45")
+    scheduler.add_job(index_kdata_15.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="40")
+    scheduler.add_job(index_kdata_30.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="50")
+    scheduler.add_job(index_kdata_60.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="5")
+    scheduler.add_job(index_kdata_d.main, "cron", day_of_week="mon-sun", hour="5,11,17,23", minute="5")
 
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
 
