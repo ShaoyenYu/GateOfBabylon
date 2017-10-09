@@ -7,11 +7,13 @@ reload(indicator)
 
 def main():
     from utils import config as cfg
+    import wrapcache
+    import hashlib, pickle
 
     def get_stockprice(conn, num):
         # 20120925 - 20170925
         sids = str(
-            tuple(pd.read_sql(f"SELECT stock_id FROM stock_info WHERE date = '20170929' LIMIT 0, {num}", conn)["stock_id"])
+            tuple(pd.read_sql(f"SELECT stock_id FROM stock_info LIMIT 0, {num}", conn)["stock_id"])
         )
         df = pd.read_sql(f"SELECT stock_id, date, close_fadj FROM stock_kdata_d WHERE stock_id IN {sids}", conn)
         df.index = pd.Index(df.date.tolist(), name="datetime")
@@ -37,19 +39,30 @@ def main():
 
     engine = cfg.default_engine
 
-    q = get_stockprice(engine, 20)
+    q = get_stockprice(engine, 2000)
+    q_y1 = q.loc[q.index >= dt.datetime(2016,9,25)]
     bm, rf = get_index(engine)
     t = init_frame()
     # bm["000001_"] = q["000001"].tolist()
 
+
+    reload(indicator)
+    hashlib.md5(pickle.dumps(q)).hexdigest()
+
     r = indicator.Derivative.return_series(q)
+    r_bm = indicator.Derivative.return_series(bm)
     er = indicator.Derivative.excess_return_a(q, bm, 250)
     r_a = indicator.Derivative.annualized_return(q, 250, "a")
+    r_a = indicator.Derivative.annualized_return(q, 250, "m")
     rbm_a = indicator.Derivative.annualized_return(bm, 250, "a")
     std = indicator.Derivative.standard_deviation(q)
     sp = indicator.Derivative.sharpe_a(q, rf, 250)
     dd = indicator.Derivative.drawdown(q)
+    dd = indicator.Derivative.drawdown(q, False)
     mdd = indicator.Derivative.max_drawdown(q)
+    indicator.Derivative.positive_periods(q)
+    indicator.Derivative.negative_periods(q)
+    odds = indicator.Derivative.odds(q, bm)
 
     rs = indicator.Derivative.return_series(r)
     racc = indicator.Derivative.accumulative_return(r)

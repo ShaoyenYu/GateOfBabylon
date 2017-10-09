@@ -1,8 +1,14 @@
 import numpy as np
 import pandas as pd
+import wrapcache
 
 
 class Derivative:
+    @staticmethod
+    def series_to_frame(series, columns):
+        # encapsulate pd.Series into pd.DataFrame
+        return pd.DataFrame(series, columns=columns).T
+
     # Returns
     @classmethod
     def return_series(cls, frame):
@@ -44,9 +50,7 @@ class Derivative:
 
         elif method in {"m", "mean"}:
             res = (1 + cls.return_series(frame).mean()) ** period - 1
-
-            # encapsulate pd.Series into pd.DataFrame
-            return pd.DataFrame(res, columns=[frame.index[-1:]]).T
+            return cls.series_to_frame(res, columns=frame.index[-1:])
 
         elif method is None:
             interval = (frame.index[-1] - frame.index[0]).days
@@ -63,13 +67,30 @@ class Derivative:
         rbm_annu = cls.annualized_return(frame_bm, period, method)
         return (r_annu.T - rbm_annu.T.unstack()).T
 
+    @classmethod
+    def odds(cls, frame, frame_bm):
+        """"""
+
+        # TODO 考虑如何优化, 减少transpose, stack和unstack的操作;
+        r, r_bm = cls.return_series(frame), cls.return_series(frame_bm)
+        er = (r.T - r_bm.T.unstack()).T.unstack()
+        odds = (er > 0).sum() / len(er)
+        return pd.DataFrame(odds, columns=frame.index[-1:]).unstack().T
+
+    @classmethod
+    def positive_periods(cls, frame):
+        """"""
+
+        periods = (cls.return_series(frame) > 0).sum()
+        return cls.series_to_frame(periods, columns=frame.index[-1:])
+
     # Risk
     @classmethod
     def standard_deviation(cls, frame):
         """"""
 
-        res = np.std(cls.return_series(frame), ddof=1)
-        return pd.DataFrame(res, columns=[frame.index[-1:]]).T
+        std = np.std(cls.return_series(frame), ddof=1)
+        return cls.series_to_frame(std, columns=frame.index[-1:])
 
     @classmethod
     def standard_deviation_a(cls, frame, period):
@@ -78,16 +99,24 @@ class Derivative:
         return cls.standard_deviation(frame) * (period ** .5)
 
     @classmethod
-    def drawdown(cls, frame):
+    def drawdown(cls, frame, use_last=True):
         """"""
-
-        return (frame.cummax() - frame) / frame.cummax()
+        dd = (frame.cummax() - frame) / frame.cummax()
+        return dd[-1:] if use_last else dd
 
     @classmethod
     def max_drawdown(cls, frame):
         """"""
 
-        return cls.drawdown(frame).cummax()
+        dd_max = cls.drawdown(frame, use_last=False).max()
+        return cls.series_to_frame(dd_max, columns=frame.index[-1:])
+
+    @classmethod
+    def negative_periods(cls, frame):
+        """"""
+
+        periods = (cls.return_series(frame) < 0).sum()
+        return cls.series_to_frame(periods, columns=frame.index[-1:])
 
     # Risk-adjusted Return
     @classmethod
