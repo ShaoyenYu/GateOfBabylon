@@ -4,6 +4,7 @@ import pandas as pd
 from utils.algorithm import indicator
 reload(indicator)
 
+# TODO 使用unittest进行单元测试
 
 def main():
     from utils import config as cfg
@@ -39,30 +40,33 @@ def main():
 
     engine = cfg.default_engine
 
-    q = get_stockprice(engine, 2000)
+    q = get_stockprice(engine, 20)
     q_y1 = q.loc[q.index >= dt.datetime(2016,9,25)]
-    bm, rf = get_index(engine)
+    p_bm, p_rf = get_index(engine)
     t = init_frame()
     # bm["000001_"] = q["000001"].tolist()
-
 
     reload(indicator)
     hashlib.md5(pickle.dumps(q)).hexdigest()
 
     r = indicator.Derivative.return_series(q)
-    r_bm = indicator.Derivative.return_series(bm)
-    er = indicator.Derivative.excess_return_a(q, bm, 250)
+    r_bm = indicator.Derivative.return_series(p_bm)
+    r_rf = indicator.Derivative.return_series(p_rf)
+    er = indicator.Derivative.excess_return(q, p_bm)
+    er_a = indicator.Derivative.excess_return_a(q, p_bm, 250)
     r_a = indicator.Derivative.annualized_return(q, 250, "a")
     r_a = indicator.Derivative.annualized_return(q, 250, "m")
-    rbm_a = indicator.Derivative.annualized_return(bm, 250, "a")
+    rbm_a = indicator.Derivative.annualized_return(p_bm, 250, "a")
     std = indicator.Derivative.standard_deviation(q)
-    sp = indicator.Derivative.sharpe_a(q, rf, 250)
+    sp = indicator.Derivative.sharpe_a(q, p_rf, 250)
+    sp = indicator.Derivative.sharpe_a(q, p_bm, 250)
+    ddev = indicator.Derivative.downside_deviation(q, p_bm, 250, 5)
     dd = indicator.Derivative.drawdown(q)
     dd = indicator.Derivative.drawdown(q, False)
     mdd = indicator.Derivative.max_drawdown(q)
-    indicator.Derivative.positive_periods(q)
-    indicator.Derivative.negative_periods(q)
-    odds = indicator.Derivative.odds(q, bm)
+    pperiods = indicator.Derivative.positive_periods(q)
+    nperiods = indicator.Derivative.negative_periods(q)
+    odds = indicator.Derivative.odds(q, p_bm)
 
     rs = indicator.Derivative.return_series(r)
     racc = indicator.Derivative.accumulative_return(r)
@@ -77,7 +81,7 @@ def main():
 
 
     # transform multi-index series to dataframe
-    er = indicator.Derivative.excess_return_a(q, bm, 250, method="m")
-    a = er.stack()
+    er_a = indicator.Derivative.excess_return_a(q, p_bm, 250, method="m")
+    a = er_a.stack()
     b = pd.DataFrame(a, columns=["excess_return_a"])
     c = b.reset_index()
