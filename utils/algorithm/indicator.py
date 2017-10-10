@@ -7,7 +7,10 @@ class Derivative:
     @staticmethod
     def series_to_frame(series, columns):
         # encapsulate pd.Series into pd.DataFrame
-        return pd.DataFrame(series, columns=columns).T
+        if type(series.index) is pd.Index:
+            return pd.DataFrame(series, columns=columns).T
+        elif type(series.index) is pd.MultiIndex:
+            return pd.DataFrame(series, columns=columns).unstack().T
 
     # Returns
     @classmethod
@@ -60,6 +63,12 @@ class Derivative:
                 return cls.annualized_return(frame, period, "a")
 
     @classmethod
+    def excess_return(cls, frame, frame_bm):
+        """"""
+        r, r_bm = cls.return_series(frame), cls.return_series(frame_bm)
+        return (r.T - r_bm.T.unstack()).T
+
+    @classmethod
     def excess_return_a(cls, frame: pd.DataFrame, frame_bm: pd.DataFrame, period, method="a"):
         """"""
 
@@ -72,16 +81,16 @@ class Derivative:
         """"""
 
         # TODO 考虑如何优化, 减少transpose, stack和unstack的操作;
-        r, r_bm = cls.return_series(frame), cls.return_series(frame_bm)
-        er = (r.T - r_bm.T.unstack()).T.unstack()
+        er = cls.excess_return(frame, frame_bm).unstack()
         odds = (er > 0).sum() / len(er)
-        return pd.DataFrame(odds, columns=frame.index[-1:]).unstack().T
+        return cls.series_to_frame(odds, frame.index[-1:])
 
     @classmethod
     def positive_periods(cls, frame):
         """"""
 
         periods = (cls.return_series(frame) > 0).sum()
+        return periods
         return cls.series_to_frame(periods, columns=frame.index[-1:])
 
     # Risk
@@ -136,4 +145,13 @@ class Derivative:
 
         er = cls.excess_return_a(frame, frame_rf, period, method)
         std_a = cls.standard_deviation_a(frame, period)
-        return (er.T / std_a.T).T
+        return er / std_a
+
+    @classmethod
+    def downside_deviation(cls, frame, frame_rf, period, order=2):
+        """"""
+
+        T = len(frame)
+        er = cls.excess_return(frame, frame_rf)
+        dd_o = (period ** .5) * ((er[er < 0].unstack() ** order).sum() / (T - 1)) ** (1 / order)
+        return cls.series_to_frame(dd_o, columns=frame.index[-1:])
