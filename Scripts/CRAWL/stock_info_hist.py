@@ -21,8 +21,7 @@ def fetch(date, engine):
     cols_valuation = ["pe", "pb", "outstanding", "totals", "totalAssets", "liquidAssets", "fixedAssets", "reserved",
                       "reservedPerShare", "esp", "bvps", "stock_id", "date"]
     cols_valuation_ = ["pe", "pb", "float_share", "total_share", "total_asset", "liquid_asset", "fixed_asset",
-                       "reserved",
-                       "reservedps", "eps", "bvps", "stock_id", "date"]
+                       "reserved", "reservedps", "eps", "bvps", "stock_id", "date"]
     try:
         err_list = {}
         df = ts.get_stock_basics(date.strftime("%Y-%m-%d"))
@@ -58,14 +57,6 @@ def main():
     print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; RECORDS NUM: {len(tasks)}; DONE;")
     return errors
 
+
 if __name__ == "__main__":
     q = main()
-
-
-
-
-
-
-
-
-

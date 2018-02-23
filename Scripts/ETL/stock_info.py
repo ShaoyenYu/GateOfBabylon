@@ -22,5 +22,6 @@ def main():
         io.to_sql("stock_info", conn, df_stock_info)
         conn.close()
 
+
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import wrapcache
 
 
 class Derivative:
@@ -16,6 +15,7 @@ class Derivative:
     @classmethod
     def return_series(cls, frame):
         """"""
+
         return (frame / frame.shift(1) - 1)[1:]
 
     @classmethod
@@ -155,3 +155,21 @@ class Derivative:
         er = cls.excess_return(frame, frame_rf)
         dd_o = (period ** .5) * ((er[er < 0].unstack() ** order).sum() / (T - 1)) ** (1 / order)
         return cls.series_to_frame(dd_o, columns=frame.index[-1:])
+
+    @classmethod
+    def deviation(cls, frame):
+        return frame - frame.mean()
+
+    @classmethod
+    def corr_pearson(cls, frame, frame_bm):
+        r = cls.return_series(frame)
+        r_bm = cls.return_series(frame_bm)
+
+        r_deviation = cls.deviation(r)
+        r_deviation_bm = cls.deviation(r_bm)
+        return r_deviation, r_deviation_bm
+        # divisor = r_deviation.T * r_deviation_bm.T.unstack()
+        # dividend = (r_deviation ** 2).sum() ** .5 *
+        #
+        # divisor = ((r - mu).T * (r_bm - mu_bm).T.unstack()).sum(axis=1)
+        # dividend = ((r - mu) ** 2).sum() ** .5 *
