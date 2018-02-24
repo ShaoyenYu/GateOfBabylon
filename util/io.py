@@ -40,7 +40,6 @@ def sql_cols(df, usage="sql"):
 
 
 def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False):
-    # type: (str, Cursor, pd.DataFrame, str, int, bool) -> typing.Optional[list]
     """
     Dummy of pandas.to_sql, support "REPLACE INTO ..." and "INSERT ... ON DUPLICATE KEY UPDATE (keys) VALUES (values)"
     SQL statement.
@@ -63,24 +62,24 @@ def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False)
     Returns:
         None
     """
+    tb_name = ".".join([f"`{x}`" for x in tb_name.split(".")])
 
-    df = dataframe.copy(deep=False)  # type: pd.DataFrame
+    df = dataframe.copy(deep=False)
     df = df.fillna("None")
     df = df.applymap(lambda x: re.sub('([\'\"\\\])', '\\\\\g<1>', str(x)))
     cols_str = sql_cols(df)
     sqls = []
     for i in range(0, len(df), chunksize):
-        # print("chunk-{no}, size-{size}".format(no=str(i/chunksize), size=chunksize))
         df_tmp = df[i: i + chunksize]
 
         if type == "replace":
-            sql_base = "REPLACE INTO `{tb_name}` {cols}".format(
+            sql_base = "REPLACE INTO {tb_name} {cols}".format(
                 tb_name=tb_name,
                 cols=cols_str
             )
 
         elif type == "update":
-            sql_base = "INSERT INTO `{tb_name}` {cols}".format(
+            sql_base = "INSERT INTO {tb_name} {cols}".format(
                 tb_name=tb_name,
                 cols=cols_str
             )
@@ -89,7 +88,7 @@ def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False)
             )
 
         elif type == "ignore":
-            sql_base = "INSERT IGNORE INTO `{tb_name}` {cols}".format(
+            sql_base = "INSERT IGNORE INTO {tb_name} {cols}".format(
                 tb_name=tb_name,
                 cols=cols_str
             )

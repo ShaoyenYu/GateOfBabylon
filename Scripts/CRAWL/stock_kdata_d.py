@@ -3,7 +3,7 @@ import pandas as pd
 import tushare as ts
 from multiprocessing.dummy import Pool as ThreadPool
 from functools import partial
-from utils import io, config as cfg
+from util import io, config as cfg
 
 
 def fetch_stockid(engine):

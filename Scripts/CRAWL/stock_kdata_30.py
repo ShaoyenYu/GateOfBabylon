@@ -1,5 +1,5 @@
 import datetime as dt
-from utils import io, config as cfg
+from util import io, config as cfg
 import pandas as pd
 import tushare as ts
 from multiprocessing.dummy import Pool as ThreadPool

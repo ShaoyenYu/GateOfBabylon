@@ -1,6 +1,6 @@
 import datetime as dt
 import pandas as pd, numpy as np
-from utils import config as cfg, mapping, io
+from util import config as cfg, mapping, io
 from WindPy import w as wind
 import tushare as ts
 
