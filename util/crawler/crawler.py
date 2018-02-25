@@ -9,6 +9,14 @@ ENGINE = cfg.default_engine
 
 
 class StockDataCrawler:
+    table_of_data = {
+        "s5k": "stock_kdata_5",
+        "s15k": "stock_kdata_15",
+        "s30k": "stock_kdata_30",
+        "s60k": "stock_kdata_60",
+        "sdk": "stock_kdata_d",
+    }
+
     def __init__(self, stock_id, **kwargs):
         """
 
@@ -20,7 +28,7 @@ class StockDataCrawler:
         self.ktype = kwargs.get("ktype")
         self.date_end = kwargs.get("date_end")
         if self.date_end:
-            self.date_start = self.date_end - relativedelta(days=1)
+            self.date_start = self.date_end - relativedelta(weeks=1)
         else:
             self.date_start = None
 
@@ -28,7 +36,7 @@ class StockDataCrawler:
         self.thread_pool = ThreadPool(self.pool_size)
 
     @classmethod
-    def _kdata(cls, stock_id, ktype, start, end):
+    def _reshape_kdata(cls, stock_id, ktype, start, end):
         start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
         end = end.strftime("%Y-%m-%d") if end is not None else None
 
@@ -53,18 +61,31 @@ class StockDataCrawler:
             return result
 
         except Exception as e:
-            print(e)
+            print(f"err: {e}, {stock_id}")
 
-    def kdata(self):
-        f = partial(self._kdata, ktype=self.ktype)
+    @classmethod
+    def store_data(cls, data, datatype):
+        table = cls.table_of_data[datatype]
+        if data is not None:
+            io.to_sql(table, ENGINE, data)
+
+    def crwal_kdata(self):
+        f = partial(self._reshape_kdata, ktype=self.ktype)
         if self.ktype == "D":
             f = partial(f, start=self.date_start, end=self.date_end)
 
-        def store_data(data):
-            pass
+        f_store = partial(self.store_data, datatype=f"s{self.ktype}k".lower())
 
         for sid in self.stock_id:
-            self.thread_pool.apply_async(f, args=(sid,), callback=store_data)
+            self.thread_pool.apply_async(f, args=(sid,), callback=f_store)
 
         self.thread_pool.close()
         self.thread_pool.join()
+
+
+def test():
+    import datetime as dt
+    sdc = StockDataCrawler(["000001", "000002"], date_end=dt.date(2018, 2, 25), ktype="D")
+    sdc.crwal_kdata()
+
+
