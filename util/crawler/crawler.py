@@ -2,6 +2,7 @@ import tushare as ts
 from multiprocessing.dummy import Pool as ThreadPool
 from functools import partial
 from dateutil.relativedelta import relativedelta
+import pandas as pd
 from util import io, config as cfg
 
 
@@ -64,7 +65,7 @@ class StockDataCrawler:
             print(f"err: {e}, {stock_id}")
 
     @classmethod
-    def store_data(cls, data, datatype):
+    def store_data(cls, data: pd.DataFrame, datatype: str):
         table = cls.table_of_data[datatype]
         if data is not None:
             io.to_sql(table, ENGINE, data)
@@ -87,5 +88,3 @@ def test():
     import datetime as dt
     sdc = StockDataCrawler(["000001", "000002"], date_end=dt.date(2018, 2, 25), ktype="D")
     sdc.crwal_kdata()
-
-
