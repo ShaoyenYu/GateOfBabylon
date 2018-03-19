@@ -28,16 +28,30 @@ class StockDataCrawler:
         self.stock_id = [stock_id] if type(stock_id) is str else stock_id
         self.ktype = kwargs.get("ktype")
         self.date_end = kwargs.get("date_end")
-        if self.date_end:
-            self.date_start = self.date_end - relativedelta(weeks=1)
-        else:
-            self.date_start = None
+        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
 
-        self.pool_size = kwargs.get("pool_size", 4)
+        self.pool_size = kwargs.get("pool_size", 8)
         self.thread_pool = ThreadPool(self.pool_size)
 
     @classmethod
     def _reshape_kdata(cls, stock_id, ktype, start, end):
+        """
+
+        Args:
+            stock_id: str
+            ktype: str, optional {"D", "5", "15", "30", "60"}
+            start: datetime.date
+            end: datetime.date
+
+        Returns:
+            pandas.DataFrame{
+                index: <datetime.date>
+                columns: ["stock_id"<str>, "date"<datetime.date>,
+                         "open", "close", "open_fadj", "close_fadj", "open_badj", "close_badj"<float>,
+                         "high", "low", "high_fadj", "low_fadj", "high_badj", "low_badj", "volume"<float>],
+            }
+
+        """
         start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
         end = end.strftime("%Y-%m-%d") if end is not None else None
 
@@ -61,8 +75,8 @@ class StockDataCrawler:
                                                                                    rsuffix="_badj")
             return result
 
-        except Exception as e:
-            print(f"err: {e}, {stock_id}")
+        except Exception:
+            pass
 
     @classmethod
     def store_data(cls, data: pd.DataFrame, datatype: str):
@@ -77,6 +91,7 @@ class StockDataCrawler:
 
         f_store = partial(self.store_data, datatype=f"s{self.ktype}k".lower())
 
+        # 多线程异步采集, 存储
         for sid in self.stock_id:
             self.thread_pool.apply_async(f, args=(sid,), callback=f_store)
 
