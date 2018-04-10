@@ -24,7 +24,13 @@ class StockDataCrawler:
         Args:
             stock_id: str, or list<str>
             **kwargs:
+                date_start: datetime.date
+                date_end: datetime.date
+                ktype: str, optional {"D", "5", "15", "30", "60"}
+                pool_size: int
+
         """
+
         self.stock_id = [stock_id] if type(stock_id) is str else stock_id
         self.ktype = kwargs.get("ktype")
         self.date_end = kwargs.get("date_end")
@@ -52,6 +58,7 @@ class StockDataCrawler:
             }
 
         """
+
         start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
         end = end.strftime("%Y-%m-%d") if end is not None else None
 
@@ -85,6 +92,13 @@ class StockDataCrawler:
             io.to_sql(table, ENGINE, data)
 
     def crwal_kdata(self):
+        """
+        采集k线数据并入库
+
+        Returns:
+
+        """
+
         f = partial(self._reshape_kdata, ktype=self.ktype)
         if self.ktype == "D":
             f = partial(f, start=self.date_start, end=self.date_end)
