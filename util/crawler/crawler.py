@@ -1,3 +1,4 @@
+import datetime as dt
 import tushare as ts
 from multiprocessing.dummy import Pool as ThreadPool
 from functools import partial
@@ -9,20 +10,14 @@ from util import io, config as cfg
 ENGINE = cfg.default_engine
 
 
-class StockDataCrawler:
-    table_of_data = {
-        "s5k": "stock_kdata_5",
-        "s15k": "stock_kdata_15",
-        "s30k": "stock_kdata_30",
-        "s60k": "stock_kdata_60",
-        "sdk": "stock_kdata_d",
-    }
+class KdataCrawler:
+    tables = {}
 
-    def __init__(self, stock_id, **kwargs):
+    def __init__(self, code, **kwargs):
         """
 
         Args:
-            stock_id: str, or list<str>
+            id_: str, or list<str>
             **kwargs:
                 date_start: datetime.date
                 date_end: datetime.date
@@ -31,20 +26,21 @@ class StockDataCrawler:
 
         """
 
-        self.stock_id = [stock_id] if type(stock_id) is str else stock_id
+        self.code = [code] if type(code) is str else code
         self.ktype = kwargs.get("ktype")
-        self.date_end = kwargs.get("date_end")
+        self.date_end = kwargs.get("date_end", dt.date.today())
         self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
 
         self.pool_size = kwargs.get("pool_size", 8)
         self.thread_pool = ThreadPool(self.pool_size)
 
     @classmethod
-    def _reshape_kdata(cls, stock_id, ktype, start, end):
+    def reshaped_kdata(cls, code, ktype, start, end, index=False):
         """
+        封装tushare库get_k_data接口, 采集股票和基准的k线数据;
 
         Args:
-            stock_id: str
+            code: str
             ktype: str, optional {"D", "5", "15", "30", "60"}
             start: datetime.date
             end: datetime.date
@@ -52,7 +48,7 @@ class StockDataCrawler:
         Returns:
             pandas.DataFrame{
                 index: <datetime.date>
-                columns: ["stock_id"<str>, "date"<datetime.date>,
+                columns: ["code"<str>, "date"<datetime.date>,
                          "open", "close", "open_fadj", "close_fadj", "open_badj", "close_badj"<float>,
                          "high", "low", "high_fadj", "low_fadj", "high_badj", "low_badj", "volume"<float>],
             }
@@ -66,32 +62,52 @@ class StockDataCrawler:
 
             adj_type = (None, "qfq", "hfq")
             dfs = {
-                adj_type: ts.get_k_data(stock_id, ktype=ktype, autype=adj_type, start=start, end=end, retry_count=10)
+                adj_type: ts.get_k_data(code, ktype=ktype, autype=adj_type, start=start, end=end, index=index, retry_count=10)
                 for
                 adj_type in adj_type
-            }
-            for k in dfs:
+            }  # 调取不复权, 前复权, 后复权的k线数据
+
+            for k in dfs:  # 合并三种复权数据
                 dfs[k].index = dfs[k]["date"]
                 if k in {"qfq", "hfq"}:
                     del dfs[k]["date"]
                     del dfs[k]["volume"]
                 else:
-                    dfs[k]["stock_id"] = dfs[k]["code"]
+                    dfs[k][cls.code_name] = dfs[k]["code"]
                 del dfs[k]["code"]
-            result = dfs[None].join(dfs["qfq"], how="outer", rsuffix="_fadj").join(dfs["hfq"], how="outer",
-                                                                                   rsuffix="_badj")
+            result = dfs[None].join(dfs["qfq"], how="outer", rsuffix="_fadj").join(dfs["hfq"], how="outer", rsuffix="_badj")
             return result
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
+
+
+class IndexKdataCrawler(KdataCrawler):
+    tables = {
+        "s5k": "stock_kdata_5",
+        "s15k": "stock_kdata_15",
+        "s30k": "stock_kdata_30",
+    }
+    code_name = "index_id"
+
+
+class StockKdataCrawler(KdataCrawler):
+    tables = {
+        "s5k": "stock_kdata_5",
+        "s15k": "stock_kdata_15",
+        "s30k": "stock_kdata_30",
+        "s60k": "stock_kdata_60",
+        "sdk": "stock_kdata_d",
+    }
+    code_name = "stock_id"
 
     @classmethod
     def store_data(cls, data: pd.DataFrame, datatype: str):
-        table = cls.table_of_data[datatype]
+        table = cls.tables[datatype]
         if data is not None:
             io.to_sql(table, ENGINE, data)
 
-    def crwal_kdata(self):
+    def crwal(self):
         """
         采集k线数据并入库
 
@@ -99,14 +115,14 @@ class StockDataCrawler:
 
         """
 
-        f = partial(self._reshape_kdata, ktype=self.ktype)
+        f = partial(self.reshaped_kdata, ktype=self.ktype)
         if self.ktype == "D":
             f = partial(f, start=self.date_start, end=self.date_end)
 
         f_store = partial(self.store_data, datatype=f"s{self.ktype}k".lower())
 
         # 多线程异步采集, 存储
-        for sid in self.stock_id:
+        for sid in self.code:
             self.thread_pool.apply_async(f, args=(sid,), callback=f_store)
 
         self.thread_pool.close()
@@ -115,5 +131,5 @@ class StockDataCrawler:
 
 def test():
     import datetime as dt
-    sdc = StockDataCrawler(["000001", "000002"], date_end=dt.date(2018, 2, 25), ktype="D")
-    sdc.crwal_kdata()
+    sdc = StockKdataCrawler(["000001", "000002"], date_end=dt.date(2018, 2, 25), ktype="D")
+    sdc.crwal()

@@ -16,8 +16,8 @@ def crawl():
     stock_ids = fetch_stockid(engine)
     date_end = dt.date.today()
 
-    sdc = crawler.StockDataCrawler(stock_ids, date_end=date_end, ktype="D")
-    sdc.crwal_kdata()
+    sdc = crawler.StockKdataCrawler(stock_ids, date_end=date_end, ktype="D")
+    sdc.crwal()
 
 
 def main():

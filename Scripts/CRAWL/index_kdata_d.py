@@ -23,9 +23,11 @@ def fetch_kdata(index_id, ktype, start=None, end=None):
     Returns:
 
     """
+
+    start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
+    end = end.strftime("%Y-%m-%d") if end is not None else None
+
     try:
-        start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
-        end = end.strftime("%Y-%m-%d") if end is not None else None
 
         autypes = (None, "qfq", "hfq")
         dfs = {
@@ -46,7 +48,7 @@ def fetch_kdata(index_id, ktype, start=None, end=None):
         return result
 
     except Exception as e:
-        return (index_id, str(e))
+        pass
 
 
 def main():
@@ -81,5 +83,8 @@ def main():
         return results, errs, e
 
 
+def test():
+    fetch_kdata("000001", "D", dt.date(2018, 4, 9), dt.date(2018, 4, 9))
+
 if __name__ == "__main__":
-    res = main()
+    test()
