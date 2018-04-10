@@ -9,6 +9,10 @@ from util import io, config as cfg
 DEFAULT_ENGINE = cfg.default_engine
 
 
+def date2str(date):
+    return date.strftime("%Y-%m-%d")
+
+
 class KdataCrawler:
     tables = {}
     code_name = None
@@ -78,8 +82,8 @@ class KdataCrawler:
 
         """
 
-        start = start.strftime("%Y-%m-%d") if start is not None else "1985-01-01"
-        end = end.strftime("%Y-%m-%d") if end is not None else None
+        start = date2str(start) if start is not None else "1985-01-01"
+        end = date2str(end) if end is not None else None
 
         try:
 
@@ -157,3 +161,27 @@ class StockKdataCrawler(KdataCrawler):
 
     def load_codes(self):
         self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
+
+
+class TickCrawler:
+    def __init__(self, date_start, date_end):
+        self.date_start = date_start
+        self.date_end = date_end
+
+    @classmethod
+    def safe_float(cls, x):
+        try:
+            return float(x)
+        except:
+            return None
+
+    @classmethod
+    def reshaped_tickdata(cls, code, date):
+        res = ts.get_tick_data(code, date2str(date))
+        res["time"] = res["time"].apply(lambda x: dt.datetime(*[date.year, date.month, date.day, *[int(x) for x in x.split(":")]]))
+        res["change"] = res["change"].apply(lambda x: cls.safe_float(x))
+        return res
+
+
+def test():
+    TickCrawler.reshaped_tickdata("000001", dt.date(2018, 4, 10))
