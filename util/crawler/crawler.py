@@ -6,44 +6,67 @@ from dateutil.relativedelta import relativedelta
 import pandas as pd
 from util import io, config as cfg
 
-
-ENGINE = cfg.default_engine
+DEFAULT_ENGINE = cfg.default_engine
 
 
 class KdataCrawler:
     tables = {}
+    code_name = None
+    index = False
 
-    def __init__(self, code, **kwargs):
+    def __init__(self, code=None, **kwargs):
         """
+        实例化crawler
 
         Args:
-            id_: str, or list<str>
+            code: str, list<str>, or None, default None
+                code为None时, 时候需要在子类实现load_codes方法
+
             **kwargs:
                 date_start: datetime.date
                 date_end: datetime.date
                 ktype: str, optional {"D", "5", "15", "30", "60"}
+                engine: sqlalchemy.engine.base.Engine
                 pool_size: int
 
         """
 
-        self.code = [code] if type(code) is str else code
+        self._code = [code] if type(code) is str else code
         self.ktype = kwargs.get("ktype")
         self.date_end = kwargs.get("date_end", dt.date.today())
         self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
+        self.engine = kwargs.get("engine", DEFAULT_ENGINE)
 
         self.pool_size = kwargs.get("pool_size", 8)
         self.thread_pool = ThreadPool(self.pool_size)
 
-    @classmethod
-    def reshaped_kdata(cls, code, ktype, start, end, index=False):
+    def load_codes(self):
         """
-        封装tushare库get_k_data接口, 采集股票和基准的k线数据;
+        若初始实例时传入的code为None, 加载需要采集的代码至_code属性.
+
+        Returns:
+
+        """
+
+        raise NotImplementedError(
+            "Must implement `load_codes` method if instance initialized without `code` parameter.")
+
+    @property
+    def code(self):
+        if not self._code:
+            self.load_codes()
+        return self._code
+
+    @classmethod
+    def reshaped_kdata(cls, code, ktype, start=None, end=None, index=False):
+        """
+        封装tushare.get_k_data接口, 采集股票和基准的k线数据.
 
         Args:
             code: str
             ktype: str, optional {"D", "5", "15", "30", "60"}
-            start: datetime.date
-            end: datetime.date
+            start: datetime.date, or None
+            end: datetime.date, or None
 
         Returns:
             pandas.DataFrame{
@@ -62,7 +85,8 @@ class KdataCrawler:
 
             adj_type = (None, "qfq", "hfq")
             dfs = {
-                adj_type: ts.get_k_data(code, ktype=ktype, autype=adj_type, start=start, end=end, index=index, retry_count=10)
+                adj_type: ts.get_k_data(code, ktype=ktype, autype=adj_type, start=start, end=end,
+                                        index=index or cls.index, retry_count=10)
                 for
                 adj_type in adj_type
             }  # 调取不复权, 前复权, 后复权的k线数据
@@ -73,39 +97,19 @@ class KdataCrawler:
                     del dfs[k]["date"]
                     del dfs[k]["volume"]
                 else:
-                    dfs[k][cls.code_name] = dfs[k]["code"]
+                    dfs[k][cls.code_name] = code
                 del dfs[k]["code"]
-            result = dfs[None].join(dfs["qfq"], how="outer", rsuffix="_fadj").join(dfs["hfq"], how="outer", rsuffix="_badj")
+            result = dfs[None].join(
+                dfs["qfq"], how="outer", rsuffix="_fadj").join(
+                dfs["hfq"], how="outer", rsuffix="_badj")
             return result
 
         except Exception as e:
             print(e)
 
-
-class IndexKdataCrawler(KdataCrawler):
-    tables = {
-        "s5k": "stock_kdata_5",
-        "s15k": "stock_kdata_15",
-        "s30k": "stock_kdata_30",
-    }
-    code_name = "index_id"
-
-
-class StockKdataCrawler(KdataCrawler):
-    tables = {
-        "s5k": "stock_kdata_5",
-        "s15k": "stock_kdata_15",
-        "s30k": "stock_kdata_30",
-        "s60k": "stock_kdata_60",
-        "sdk": "stock_kdata_d",
-    }
-    code_name = "stock_id"
-
-    @classmethod
-    def store_data(cls, data: pd.DataFrame, datatype: str):
-        table = cls.tables[datatype]
+    def store(self, data: pd.DataFrame):
         if data is not None:
-            io.to_sql(table, ENGINE, data)
+            io.to_sql(self.tables[self.ktype], self.engine, data)
 
     def crwal(self):
         """
@@ -119,17 +123,37 @@ class StockKdataCrawler(KdataCrawler):
         if self.ktype == "D":
             f = partial(f, start=self.date_start, end=self.date_end)
 
-        f_store = partial(self.store_data, datatype=f"s{self.ktype}k".lower())
-
         # 多线程异步采集, 存储
-        for sid in self.code:
-            self.thread_pool.apply_async(f, args=(sid,), callback=f_store)
+        [self.thread_pool.apply_async(f, args=(sid,), callback=self.store) for sid in self.code]
 
         self.thread_pool.close()
         self.thread_pool.join()
 
 
-def test():
-    import datetime as dt
-    sdc = StockKdataCrawler(["000001", "000002"], date_end=dt.date(2018, 2, 25), ktype="D")
-    sdc.crwal()
+class IndexKdataCrawler(KdataCrawler):
+    tables = {
+        "5": "index_kdata_5",
+        "15": "index_kdata_15",
+        "30": "index_kdata_30",
+        "60": "index_kdata_60",
+        "D": "index_kdata_d_test",
+    }
+    code_name = "index_id"
+    index = True  # 调用reshaped_kdata方法时, 是否采集指数
+
+    def load_codes(self):
+        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT index_id FROM index_info").fetchall()])
+
+
+class StockKdataCrawler(KdataCrawler):
+    tables = {
+        "5": "stock_kdata_5",
+        "15": "stock_kdata_15",
+        "30": "stock_kdata_30",
+        "60": "stock_kdata_60",
+        "D": "stock_kdata_d",
+    }
+    code_name = "stock_id"
+
+    def load_codes(self):
+        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
