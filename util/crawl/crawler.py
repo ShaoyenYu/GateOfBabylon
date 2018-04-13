@@ -67,7 +67,7 @@ class KdataCrawler(BaseCrawler):
         return self._code
 
     @classmethod
-    def reshaped_kdata(cls, code, ktype, start=None, end=None, index=False):
+    def kdata(cls, code, ktype, start=None, end=None, index=False):
         """
         封装tushare.get_k_data接口, 采集股票和基准的k线数据.
 
@@ -128,7 +128,7 @@ class KdataCrawler(BaseCrawler):
 
         """
 
-        f = partial(self.reshaped_kdata, ktype=self.ktype)
+        f = partial(self.kdata, ktype=self.ktype)
         if self.ktype == "D":
             f = partial(f, start=self.date_start, end=self.date_end)
 
@@ -179,8 +179,9 @@ class TickCrawler(BaseCrawler):
         return self._code
 
     @classmethod
-    def reshaped_tickdata(cls, code, date):
+    def tickdata(cls, code, date):
         """
+        封装tushare.get_tick_data()接口, 采集股票分笔交易数据;
 
         Args:
             code:
@@ -214,10 +215,30 @@ class TickCrawler(BaseCrawler):
         # 多线程异步采集, 存储
         for date in date_ranges:
             for code in self.code:
-                self.thread_pool.apply_async(self.reshaped_tickdata(code, date), callback=self.store)
+                self.thread_pool.apply_async(self.tickdata(code, date), callback=self.store)
 
         self.thread_pool.close()
         self.thread_pool.join()
+
+
+class BasicDataCrawler(BaseCrawler):
+
+    def __init__(self, date, **kwargs):
+        super().__init__(**kwargs)
+
+        self.date = date
+
+    @classmethod
+    def base(cls, ):
+        pass
+
+    @classmethod
+    def performance(cls):
+        pass
+
+    @classmethod
+    def revenue(cls):
+        pass
 
 
 class IndexKdataCrawler(KdataCrawler):
@@ -260,8 +281,9 @@ class StockTickCrawler(TickCrawler):
 
 def test():
     # 股票K线
-    StockKdataCrawler.reshaped_kdata("000001", ktype="D", start=dt.date(2018, 4, 11), end=dt.date(2018, 4, 12))
+    StockKdataCrawler.kdata("000001", ktype="D", start=dt.date(2018, 4, 11), end=dt.date(2018, 4, 12))
     StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
 
     # 股票历史分笔
-    TickCrawler.reshaped_tickdata("000001", dt.date(2018, 4, 9))
+    TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
+    ts.get_report_data(2018, 3)
