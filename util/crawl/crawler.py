@@ -13,7 +13,15 @@ def date2str(date):
     return date.strftime("%Y-%m-%d")
 
 
-class KdataCrawler:
+class BaseCrawler:
+    def __init__(self, **kwargs):
+        self.engine = kwargs.get("engine", DEFAULT_ENGINE)
+
+        self.pool_size = kwargs.get("pool_size", 8)
+        self.thread_pool = ThreadPool(self.pool_size)
+
+
+class KdataCrawler(BaseCrawler):
     tables = {}
     code_name = None
     index = False
@@ -34,15 +42,12 @@ class KdataCrawler:
                 pool_size: int
 
         """
+        super().__init__(**kwargs)
 
         self._code = [code] if type(code) is str else code
         self.ktype = kwargs.get("ktype")
         self.date_end = kwargs.get("date_end", dt.date.today())
         self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
-        self.engine = kwargs.get("engine", DEFAULT_ENGINE)
-
-        self.pool_size = kwargs.get("pool_size", 8)
-        self.thread_pool = ThreadPool(self.pool_size)
 
     def load_codes(self):
         """
@@ -134,6 +139,87 @@ class KdataCrawler:
         self.thread_pool.join()
 
 
+class TickCrawler(BaseCrawler):
+    code_name = "stock_id"
+
+    def __init__(self, code, date_start, date_end, kwargs):
+        super().__init__(**kwargs)
+
+        self._code = [code] if type(code) is str else code
+        self.date_start = date_start
+        self.date_end = date_end
+
+        self.engine = kwargs.get("engine", DEFAULT_ENGINE)
+
+        self.pool_size = kwargs.get("pool_size", 8)
+        self.thread_pool = ThreadPool(self.pool_size)
+
+    @classmethod
+    def _safe_float(cls, x):
+        try:
+            return float(x)
+        except:
+            return None
+
+    def load_codes(self):
+        """
+        若初始实例时传入的code为None, 加载需要采集的代码至_code属性.
+
+        Returns:
+
+        """
+
+        raise NotImplementedError(
+            "Must implement `load_codes` method if instance initialized without `code` parameter.")
+
+    @property
+    def code(self):
+        if not self._code:
+            self.load_codes()
+        return self._code
+
+    @classmethod
+    def reshaped_tickdata(cls, code, date):
+        """
+
+        Args:
+            code:
+            date: datetime.date
+
+        Returns:
+
+        """
+
+        try:
+            res = ts.get_tick_data(code, date2str(date))
+        except:
+            return pd.DataFrame(columns=[cls.code_name, "time", "price", "change", "vaolume", "amount", "type"])
+
+        res["time"] = res["time"].apply(
+            lambda x: dt.datetime(*[date.year, date.month, date.day, *[int(x) for x in x.split(":")]]))
+        res["change"] = res["change"].apply(lambda x: cls._safe_float(x))
+        res[cls.code_name] = code
+        return res
+
+    def crawl(self):
+        """
+        采集股票分笔数据
+
+        Returns:
+
+        """
+
+        date_ranges = pd.date_range(self.date_start, self.date_end)
+
+        # 多线程异步采集, 存储
+        for date in date_ranges:
+            for code in self.code:
+                self.thread_pool.apply_async(self.reshaped_tickdata(code, date), callback=self.store)
+
+        self.thread_pool.close()
+        self.thread_pool.join()
+
+
 class IndexKdataCrawler(KdataCrawler):
     tables = {
         "5": "index_kdata_5",
@@ -163,25 +249,19 @@ class StockKdataCrawler(KdataCrawler):
         self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
 
 
-class TickCrawler:
-    def __init__(self, date_start, date_end):
-        self.date_start = date_start
-        self.date_end = date_end
+class StockTickCrawler(TickCrawler):
 
-    @classmethod
-    def safe_float(cls, x):
-        try:
-            return float(x)
-        except:
-            return None
+    def load_codes(self):
+        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
 
-    @classmethod
-    def reshaped_tickdata(cls, code, date):
-        res = ts.get_tick_data(code, date2str(date))
-        res["time"] = res["time"].apply(lambda x: dt.datetime(*[date.year, date.month, date.day, *[int(x) for x in x.split(":")]]))
-        res["change"] = res["change"].apply(lambda x: cls.safe_float(x))
-        return res
+    def store(self):
+        pass
 
 
 def test():
-    TickCrawler.reshaped_tickdata("000001", dt.date(2018, 4, 10))
+    # 股票K线
+    StockKdataCrawler.reshaped_kdata("000001", ktype="D", start=dt.date(2018, 4, 11), end=dt.date(2018, 4, 12))
+    StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
+
+    # 股票历史分笔
+    TickCrawler.reshaped_tickdata("000001", dt.date(2018, 4, 9))
