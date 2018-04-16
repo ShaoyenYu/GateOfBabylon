@@ -5,6 +5,7 @@ from functools import partial
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 from util import io, config as cfg
+from util.decofactory import common
 
 DEFAULT_ENGINE = cfg.default_engine
 
@@ -113,13 +114,14 @@ class KdataCrawler(BaseCrawler):
                 dfs["hfq"], how="outer", rsuffix="_badj")
             return result
 
-        except Exception as e:
-            print(e)
+        except KeyError:
+            print(f"{code} has no data during {start}-{end}")
 
     def store(self, data: pd.DataFrame):
         if data is not None:
             io.to_sql(self.tables[self.ktype], self.engine, data)
 
+    @common.log
     def crwal(self):
         """
         采集k线数据并入库
@@ -247,7 +249,7 @@ class IndexKdataCrawler(KdataCrawler):
         "15": "index_kdata_15",
         "30": "index_kdata_30",
         "60": "index_kdata_60",
-        "D": "index_kdata_d_test",
+        "D": "index_kdata_d",
     }
     code_name = "index_id"
     index = True  # 调用reshaped_kdata方法时, 是否采集指数
