@@ -2,7 +2,7 @@ from util.crawl import crawler
 
 
 def main():
-    crawler.StockKdataCrawler(ktype="60")
+    crawler.StockKdataCrawler(ktype="60").crwal()
 
 
 if __name__ == "__main__":
