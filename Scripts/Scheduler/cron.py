@@ -8,7 +8,8 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from Scripts.ETL import stock_info
 from Scripts.Crawl import (
     stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d,
-    index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d
+    index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d,
+    stock_tickdata_d
 )
 
 jobstores = {
@@ -48,6 +49,9 @@ def main():
     scheduler.add_job(index_kdata_30.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="50")
     scheduler.add_job(index_kdata_60.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="5")
     scheduler.add_job(index_kdata_d.main, "cron", day_of_week="mon-sun", hour="5,11,17,23", minute="5")
+
+    # Crawl stock tick data
+    scheduler.add_job(stock_tickdata_d.main, "cron", day_of_week="mon-sun", hour="21,23", minute="5")
 
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
 

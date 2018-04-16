@@ -144,17 +144,12 @@ class KdataCrawler(BaseCrawler):
 class TickCrawler(BaseCrawler):
     code_name = "stock_id"
 
-    def __init__(self, code, date_start, date_end, kwargs):
+    def __init__(self, code=None, **kwargs):
         super().__init__(**kwargs)
 
         self._code = [code] if type(code) is str else code
-        self.date_start = date_start
-        self.date_end = date_end
-
-        self.engine = kwargs.get("engine", DEFAULT_ENGINE)
-
-        self.pool_size = kwargs.get("pool_size", 8)
-        self.thread_pool = ThreadPool(self.pool_size)
+        self.date_end = kwargs.get("date_end", dt.date.today())
+        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
 
     @classmethod
     def _safe_float(cls, x):
@@ -192,17 +187,23 @@ class TickCrawler(BaseCrawler):
         Returns:
 
         """
-
         try:
-            res = ts.get_tick_data(code, date2str(date))
-        except:
-            return pd.DataFrame(columns=[cls.code_name, "time", "price", "change", "vaolume", "amount", "type"])
+            res = ts.get_tick_data(code, date2str(date), src="tt", pause=2, retry_count=10)
+            if res.loc[0, "time"] == 'alert("当天没有数据");':  # 该参数下无正确数据返回
+                return pd.DataFrame(columns=[cls.code_name, "time", "price", "change", "vaolume", "amount", "type"])
 
-        res["time"] = res["time"].apply(
-            lambda x: dt.datetime(*[date.year, date.month, date.day, *[int(x) for x in x.split(":")]]))
-        res["change"] = res["change"].apply(lambda x: cls._safe_float(x))
-        res[cls.code_name] = code
-        return res
+            res["time"] = res["time"].apply(
+                lambda x: dt.datetime(*[date.year, date.month, date.day, *[int(x) for x in x.split(":")]]))
+            res["change"] = res["change"].apply(lambda x: cls._safe_float(x))
+            res[cls.code_name] = code
+            print(res)
+            return res
+        except Exception:
+            print(Exception, code, date)
+
+    def store(self, data: pd.DataFrame):
+        if data is not None:
+            io.to_sql("stock_tickdata", self.engine, data)
 
     def crawl(self):
         """
@@ -215,9 +216,9 @@ class TickCrawler(BaseCrawler):
         date_ranges = pd.date_range(self.date_start, self.date_end)
 
         # 多线程异步采集, 存储
-        for date in date_ranges:
+        for date in date_ranges[::-1]:
             for code in self.code:
-                self.thread_pool.apply_async(self.tickdata(code, date), callback=self.store)
+                self.thread_pool.apply_async(self.tickdata, args=(code, date), callback=self.store)
 
         self.thread_pool.close()
         self.thread_pool.join()
@@ -277,9 +278,6 @@ class StockTickCrawler(TickCrawler):
     def load_codes(self):
         self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
 
-    def store(self):
-        pass
-
 
 def test():
     # 股票K线
@@ -287,5 +285,7 @@ def test():
     StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
 
     # 股票历史分笔
+    StockTickCrawler().crawl()
+    TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
     TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
     ts.get_report_data(2018, 3)
