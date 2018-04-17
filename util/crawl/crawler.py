@@ -148,8 +148,8 @@ class TickCrawler(BaseCrawler):
         super().__init__(**kwargs)
 
         self._code = [code] if type(code) is str else code
-        self.date_end = kwargs.get("date_end", dt.date.today())
-        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
+        self.date_end = kwargs.get("date_end", dt.date.today() - dt.timedelta(1))
+        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(days=0))
 
     @classmethod
     def _safe_float(cls, x):
@@ -157,6 +157,41 @@ class TickCrawler(BaseCrawler):
             return float(x)
         except:
             return None
+
+    @classmethod
+    def _create_tickdata_table(cls, year_season, engine):
+        """
+
+        Args:
+            year_season: str
+            "YYYYMM"
+
+        Returns:
+
+        """
+
+        sql = f"""
+                CREATE TABLE `stock_tickdata_{year_season}` (
+                  `stock_id` varchar(10) NOT NULL,
+                  `time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+                  `price` decimal(6,2) DEFAULT NULL,
+                  `change` decimal(4,2) DEFAULT NULL,
+                  `volume` mediumint(9) unsigned DEFAULT NULL,
+                  `amount` int(12) DEFAULT NULL,
+                  `type` enum('买盘','卖盘','中性盘') DEFAULT NULL,
+                  PRIMARY KEY (`stock_id`,`time`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"""
+        print(sql)
+        try:
+            engine.execute(sql)
+        except:
+            pass
+
+    @classmethod
+    def _check_table(cls, date_range, engine):
+        ys_lst = sorted(set([x.strftime("%Y%m") for x in date_range]))
+        for ys in ys_lst:
+            cls._create_tickdata_table(ys, engine)
 
     def load_codes(self):
         """
@@ -202,8 +237,22 @@ class TickCrawler(BaseCrawler):
             print(Exception, code, date)
 
     def store(self, data: pd.DataFrame):
+        """
+            将分笔数据存表存储;
+
+        Args:
+            data:
+
+        Returns:
+
+        """
+
         if data is not None:
-            io.to_sql("stock_tickdata", self.engine, data)
+            original_cols = data.columns
+            data["__ys"] = data["time"].apply(lambda x: x.strftime("%Y%m"))
+            year_season = set(data["__ys"])
+            for ys in year_season:
+                io.to_sql(f"stock_tickdata_{ys}", self.engine, data.loc[data["__ys"] == ys, original_cols])
 
     def crawl(self):
         """
@@ -213,7 +262,8 @@ class TickCrawler(BaseCrawler):
 
         """
 
-        date_ranges = pd.date_range(self.date_start, self.date_end)
+        date_ranges = pd.date_range(self.date_start, self.date_end, freq="B")
+        self._check_table(date_ranges, self.engine)
 
         # 多线程异步采集, 存储
         for date in date_ranges[::-1]:
@@ -285,7 +335,7 @@ def test():
     StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
 
     # 股票历史分笔
-    StockTickCrawler().crawl()
-    TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
-    TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
-    ts.get_report_data(2018, 3)
+    StockTickCrawler(date_start=dt.date(2018, 2, 28), date_end=dt.date(2018, 2, 28)).crawl()
+    # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
+    # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
+    # ts.get_report_data(2018, 3)
