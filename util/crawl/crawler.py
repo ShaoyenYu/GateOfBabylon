@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 import pandas as pd
 from util import io, config as cfg
 from util.decofactory import common
+import calendar as cld
 
 DEFAULT_ENGINE = cfg.default_engine
 
@@ -14,6 +15,7 @@ def date2str(date):
     return date.strftime("%Y-%m-%d")
 
 
+# 采集工具类基类
 class BaseCrawler:
     def __init__(self, **kwargs):
         self.engine = kwargs.get("engine", DEFAULT_ENGINE)
@@ -22,6 +24,43 @@ class BaseCrawler:
         self.thread_pool = ThreadPool(self.pool_size)
 
 
+# 基本面数据
+class BasicDataCrawler(BaseCrawler):
+    code_name = "stock_id"
+
+    def __init__(self, year, season, **kwargs):
+        super().__init__(**kwargs)
+
+        self.year = year
+        self.season = season
+        self.year_season = year * 10 + season
+
+    @classmethod
+    def guess_report_date(cls, year, season, report_date):
+        m, d = [int(x) for x in report_date.split("-")]
+        earliest_report_date = dt.date(year, season * 3, cld.monthrange(year, season * 3)[1])
+        cur_report_date = dt.date(year, m, d)
+
+        while cur_report_date < earliest_report_date:
+            cur_report_date = dt.date(cur_report_date.year + 1, m, d)
+        return cur_report_date
+
+    @classmethod
+    def base(cls, ):
+        pass
+
+    @classmethod
+    def performance(cls, year, season):
+        pass
+
+    def revenue(self):
+        df = ts.get_profit_data(self.year, self.season).rename(columns={"code": "stock_id"})
+        # df["report_date"] = df["report_date"].apply(lambda x: self.guess_report_date(self.year, self.season, x))
+        df["season"] = self.season
+        return df
+
+
+# K线数据基类
 class KdataCrawler(BaseCrawler):
     tables = {}
     code_name = None
@@ -141,6 +180,7 @@ class KdataCrawler(BaseCrawler):
         self.thread_pool.join()
 
 
+# 分笔数据基类
 class TickCrawler(BaseCrawler):
     code_name = "stock_id"
 
@@ -274,26 +314,6 @@ class TickCrawler(BaseCrawler):
         self.thread_pool.join()
 
 
-class BasicDataCrawler(BaseCrawler):
-
-    def __init__(self, date, **kwargs):
-        super().__init__(**kwargs)
-
-        self.date = date
-
-    @classmethod
-    def base(cls, ):
-        pass
-
-    @classmethod
-    def performance(cls):
-        pass
-
-    @classmethod
-    def revenue(cls):
-        pass
-
-
 class IndexKdataCrawler(KdataCrawler):
     tables = {
         "5": "index_kdata_5",
@@ -326,7 +346,7 @@ class StockKdataCrawler(KdataCrawler):
 class StockTickCrawler(TickCrawler):
 
     def load_codes(self):
-        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
+        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT sto ck_id FROM stock_info").fetchall()])
 
 
 def test():
@@ -335,7 +355,13 @@ def test():
     StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
 
     # 股票历史分笔
-    StockTickCrawler(date_start=dt.date(2018, 2, 28), date_end=dt.date(2018, 2, 28)).crawl()
+    StockTickCrawler(date_start=dt.date(2018, 1, 1), date_end=dt.date(2018, 1, 31)).crawl()
     # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
     # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
-    # ts.get_report_data(2018, 3)
+
+    # 股票财报数据
+    q1 = BasicDataCrawler(2017, 3).revenue()
+    q2 = BasicDataCrawler(2017, 4).revenue()
+
+    for q in [q1, q2]:
+        print(q.loc[q.stock_id == "300504"])
