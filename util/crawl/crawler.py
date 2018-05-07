@@ -33,7 +33,7 @@ class BasicDataCrawler(BaseCrawler):
 
         self.year = year
         self.season = season
-        self.year_season = year * 10 + season
+        self.year_season = year * 100 + season
 
     @classmethod
     def guess_report_date(cls, year, season, report_date):
@@ -49,15 +49,22 @@ class BasicDataCrawler(BaseCrawler):
     def base(cls, ):
         pass
 
-    @classmethod
-    def performance(cls, year, season):
+    def performance(self, year, season):
         pass
 
     def revenue(self):
-        df = ts.get_profit_data(self.year, self.season).rename(columns={"code": "stock_id"})
-        # df["report_date"] = df["report_date"].apply(lambda x: self.guess_report_date(self.year, self.season, x))
-        df["season"] = self.season
+        df = ts.get_profit_data(self.year, self.season).rename(columns={"code": "stock_id", "gross_profit_rate": "gross_profit_ratio"}).drop(labels=["name"], axis=1)
+        df["season"] = self.year_season
         return df
+
+    def cashflow(self):
+        df = ts.get_cashflow_data(self.year, self.season).rename(columns={"code": "stock_id", "rateofreturn": "ofreturn_ratio"}).drop(labels=["name"], axis=1)
+        df["season"] = self.year_season
+        return df
+
+    def crawl(self):
+        # io.to_sql("babylon.stock_revenue", self.engine, self.revenue())
+        io.to_sql("babylon.stock_cashflow", self.engine, self.cashflow())
 
 
 # K线数据基类
@@ -188,8 +195,8 @@ class TickCrawler(BaseCrawler):
         super().__init__(**kwargs)
 
         self._code = [code] if type(code) is str else code
-        self.date_end = kwargs.get("date_end", dt.date.today() - dt.timedelta(1))
-        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(days=0))
+        self.date_end = kwargs.get("date_end", dt.date.today())
+        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(days=0 + (self.date_end.weekday() - 4) * (self.date_end.weekday() in (5, 6))))
 
     @classmethod
     def _safe_float(cls, x):
@@ -346,22 +353,61 @@ class StockKdataCrawler(KdataCrawler):
 class StockTickCrawler(TickCrawler):
 
     def load_codes(self):
-        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT sto ck_id FROM stock_info").fetchall()])
+        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT stock_id FROM stock_info").fetchall()])
 
 
-def test():
-    # 股票K线
-    StockKdataCrawler.kdata("000001", ktype="D", start=dt.date(2018, 4, 11), end=dt.date(2018, 4, 12))
-    StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
-
-    # 股票历史分笔
-    StockTickCrawler(date_start=dt.date(2018, 1, 1), date_end=dt.date(2018, 1, 31)).crawl()
-    # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
-    # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
-
-    # 股票财报数据
-    q1 = BasicDataCrawler(2017, 3).revenue()
-    q2 = BasicDataCrawler(2017, 4).revenue()
-
-    for q in [q1, q2]:
-        print(q.loc[q.stock_id == "300504"])
+# def test():
+#     # 股票K线
+#     StockKdataCrawler.kdata("000001", ktype="D", start=dt.date(2018, 4, 11), end=dt.date(2018, 4, 12))
+#     StockKdataCrawler("000001", ktype="D", date_start=dt.date(2018, 4, 11), date_end=dt.date(2018, 4, 12)).crwal()
+#
+#     # 股票历史分笔
+#     StockTickCrawler(date_start=dt.date(2018, 1, 1), date_end=dt.date(2018, 1, 31)).crawl()
+#     # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
+#     # TickCrawler.tickdata("000001", dt.date(2018, 4, 9))
+#
+#     # 股票财报数据
+#     q1 = BasicDataCrawler(2017, 3).revenue()
+#     BasicDataCrawler(2017, 4).crawl()
+#     for y, s in [(y, s) for y in range(2005, 2018) for s in (1, 2, 3, 4)]:
+#         print(y, s)
+#         BasicDataCrawler(y, s).crawl()
+#
+#     for q in [q1, q2]:
+#         print(q.loc[q.stock_id == "300504"])
+#
+#
+# def test2():
+#     import matplotlib.pyplot as plt
+#     plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+#     plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+#
+#     def check(sid):
+#         sql = f"""
+#         SELECT t1.stock_id, t1.close, t1.close_fadj, t1.season, t1.date, t2.roe, t2.eps, t2.business_income, t2.net_profits, t2.net_profit_ratio
+#     FROM
+#     (SELECT stock_id, close, (YEAR(date) * 100 + floor(MONTH(date) / 4) + 1) as season, date, close_fadj FROM stock_kdata_d) t1
+#     JOIN `stock_revenue` t2 ON t1.stock_id = t2.stock_id AND t1.season = t2.season
+#     WHERE t1.stock_id = "{sid}";"""
+#         d = pd.read_sql(sql, DEFAULT_ENGINE)
+#         q = d[["close", "eps", "roe"]]
+#         q.index = d["date"]
+#
+#         # d1 = (q - q.mean()) / q.std()
+#         d1 = (q - q.min()) / (q.max() - q.min())
+#         shift_day = int(90 * 1.15)
+#         plt.plot(d1["close"], "r")
+#         # plt.plot(d1["eps"].shift(0), "g")
+#         plt.plot(d1["eps"].shift(shift_day), "g")
+#         plt.plot(d1["roe"].shift(shift_day), "b")
+#         sname = DEFAULT_ENGINE.execute(f"SELECT name FROM stock_info WHERE stock_id = '{sid}'").fetchone()[0]
+#         plt.title(f"{sid} {sname}")
+#         # plt.plot(d1["close"] / d1["eps"], "b")
+#
+#         # plt.plot(q["eps"])
+#         plt.show()
+#     # sids = [str(x).zfill(6) for x in pd.read_clipboard(header=None)[0].tolist()]
+#     sids = [x[0] for x in DEFAULT_ENGINE.execute("SELECT stock_id FROM stock_info WHERE industry = '银行'")]
+#
+#     for sid in sids:
+#         check(sid)
