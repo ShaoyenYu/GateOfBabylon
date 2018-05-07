@@ -2,6 +2,8 @@ import datetime as dt
 from functools import wraps
 import sys
 import os
+import hashlib
+import pickle
 
 
 def log(f):
@@ -18,3 +20,39 @@ def log(f):
 
         return res
     return wrapper
+
+
+def inscache(cacheattr, paramhash=False):
+    """
+        Cache decorator for class instance, with different level of cache strategy.
+
+    Args:
+        cacheattr: str
+            instance attribute for storing cache;
+        paramhash: bool
+            cache strategy
+
+    Returns:
+
+    """
+
+    def _cache(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            if paramhash:
+                hash_key = hashlib.md5(pickle.dumps((func.__name__, args, kwargs))).hexdigest()
+            else:
+                hash_key = hashlib.md5(pickle.dumps(func.__name__)).hexdigest()
+
+            if hasattr(self, cacheattr):
+                if hash_key not in self.__getattribute__(cacheattr):
+                    self.__getattribute__(cacheattr)[hash_key] = func(self, *args, **kwargs)
+            else:
+                self.__setattr__(cacheattr, {})
+                self.__getattribute__(cacheattr)[hash_key] = func(self, *args, **kwargs)
+
+            return self.__getattribute__(cacheattr)[hash_key]
+
+        return wrapper
+
+    return _cache
