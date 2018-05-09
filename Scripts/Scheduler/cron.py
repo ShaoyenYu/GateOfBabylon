@@ -5,7 +5,9 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
-from Scripts.ETL import stock_info
+from Scripts.ETL import (
+    stock_info, stock_turnover_d
+)
 from Scripts.Crawl import (
     stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d,
     index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d,
@@ -35,6 +37,7 @@ def main():
     # Crawl stock info
     scheduler.add_job(stock_info_hist.main, "cron", minute=30)
     scheduler.add_job(stock_info.main, "cron", minute=35)
+    scheduler.add_job(stock_turnover_d.main, "cron", day_of_week="mon-sun", hour="20", minute="5")
 
     # Crawl stock price
     scheduler.add_job(stock_kdata_5.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="15,45")
@@ -51,10 +54,10 @@ def main():
     scheduler.add_job(index_kdata_d.main, "cron", day_of_week="mon-sun", hour="5,11,17,23", minute="5")
 
     # Crawl stock tick data
-    # scheduler.add_job(stock_tickdata_d.main, "cron", day_of_week="mon-sun", hour="21,23", minute="5")
+    scheduler.add_job(stock_tickdata_d.main, "cron", day_of_week="mon-sun", hour="19", minute="5")
 
+    # Configure & Start
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
-
     scheduler.start()
     # scheduler.shutdown(wait=False)
     # scheduler.remove_all_jobs()
