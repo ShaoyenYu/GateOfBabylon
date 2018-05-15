@@ -37,7 +37,7 @@ def main():
     # Crawl stock info
     scheduler.add_job(stock_info_hist.main, "cron", minute=30)
     scheduler.add_job(stock_info.main, "cron", minute=35)
-    scheduler.add_job(stock_turnover_d.main, "cron", day_of_week="mon-sun", hour="20", minute="5")
+    scheduler.add_job(stock_turnover_d.main, "cron", day_of_week="mon-sun", hour="20,21", minute="5")
 
     # Crawl stock price
     scheduler.add_job(stock_kdata_5.main, "cron", day_of_week="mon-sun", hour="10-12,14-16,18,21,23", minute="15,45")

@@ -31,7 +31,7 @@ def save_to_db(dataframe):
 def main():
     ids = fetch_ids()
     p = ThreadPool(8)
-    for date in pd.date_range(dt.date.today() - dt.timedelta(7), dt.date.today()):
+    for date in pd.date_range(dt.date.today() - dt.timedelta(7), dt.date.today() - dt.timedelta(1)):
         p.apply_async(fetch_data, args=(ids, date), callback=save_to_db)
     p.close()
     p.join()
