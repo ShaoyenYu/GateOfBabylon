@@ -7,7 +7,7 @@ def main():
 
 
 def test():
-    crawler.StockTickCrawler(date_start=dt.date(2018, 5, 2), date_end=dt.date(2018, 5, 8)).crawl()
+    crawler.StockTickCrawler(date_start=dt.date.today(), date_end=dt.date.today()).crawl()
 
 
 if __name__ == "__main__":
