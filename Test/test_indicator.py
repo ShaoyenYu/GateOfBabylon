@@ -1,13 +1,13 @@
 from importlib import reload
 import datetime as dt
 import pandas as pd
-from util.algorithm import indicator
+from utils.algorithm import indicator
 reload(indicator)
 
 # TODO 使用unittest进行单元测试
 
 def main():
-    from util import config as cfg
+    from utils import config as cfg
     import wrapcache
     import hashlib, pickle
 

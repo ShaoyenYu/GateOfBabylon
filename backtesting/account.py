@@ -1,5 +1,6 @@
 import datetime as dt
-import pandas as pd
+from utils.decofactory import common
+from utils.config import default_engine
 from backtesting import basetype, loader
 
 from importlib import reload
@@ -12,7 +13,8 @@ class Account:
 
 
 class Stock:
-    pass
+    def __init__(self, stock_id):
+        pass
 
 
 class Position(basetype.TsProcessor):
@@ -22,19 +24,31 @@ class Position(basetype.TsProcessor):
 
 
 class StockPosition(Position):
+    engine = default_engine
+
     def __init__(self, positions=None, start=None, end=None, freq="W-FRI"):
+        if positions is None:
+            sql = "SELECT DISTINCT stock_id FROM stock_info WHERE name NOT LIKE '*%%'"
+            positions = [x[0] for x in default_engine.execute(sql).fetchall()]
         self.data_loader = loader.StockDataLoader(positions, start, end)
         Position.__init__(self, positions, start, end, freq)
 
     @property
+    @common.inscache("_cached")
     def turnover_series(self):
         df = self.data_loader.load_turnover("b")
-        return df.pivot(index="date", columns="stock_id", values="amount")
+        return df.pivot(index="date", columns="stock_id", values="value")
 
     @property
+    @common.inscache("_cached")
     def price_series(self):
         df = self.data_loader.load_price()
         return df.pivot(index="date", columns="stock_id", values="value")
+
+    @property
+    @common.inscache("_cached")
+    def type(self):
+        return self.data_loader.load_type()
 
     @property
     def return_series(self):
@@ -47,17 +61,13 @@ class StockPosition(Position):
 
 
 def test():
-    s = ['000001', '000002', '000735', '000837', '000886', '000908', '000955',]
-    from util.config import default_engine
-    sids = [x[0] for x in default_engine.execute("SELECT DISTINCT stock_id FROM stock_info WHERE name NOT LIKE '*%%'").fetchall()]
-    t1, t2 = dt.date(2018, 4, 1), dt.date(2018, 5, 14)
-    qq = StockPosition(sids, start=t1, end=t2, freq="D")
-    d1, d2 = qq.return_series.dropna(axis=1, how="any"), qq.turnover_series.dropna(axis=1, how="any")
+    from backtesting.strategy import T1
 
-    start, end = dt.date(2018, 5, 15), dt.date(2018, 5, 17)
-    a = StockPosition(s, start=start, end=end, freq="D")
+    s1, e1 = dt.date(2018, 4, 1), dt.date(2018, 5, 23)
+    t = T1(s1, e1)
 
-    a.cumret
-    a.price_series
-    a.return_series
-    a.turnover_series
+    start, end = dt.date(2018, 5, 23), dt.date(2018, 5, 25)
+    for wl, p in [(wl, p) for wl in range(2, 5) for p in range(2, 15)]:
+        s = t.pool(wl, p)
+        a = StockPosition(s, start=start, end=end, freq="D")
+        print(wl, p, a.cumret, len(s))

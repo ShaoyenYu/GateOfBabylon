@@ -15,4 +15,3 @@ class TsProcessor:
 
     def resample(self, data: pd.DataFrame, freq=None):
         return data.resample(rule=freq or self.freq)
-
