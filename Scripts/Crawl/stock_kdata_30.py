@@ -1,4 +1,4 @@
-from util.crawl import crawler
+from utils.crawler import crawler
 
 
 def main():

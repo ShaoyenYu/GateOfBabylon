@@ -1,15 +1,11 @@
 import os
-import typing
-
 import pandas as pd
 import shutil
 import sys
 import re
-
 import pymysql
 import time
 from openpyxl import load_workbook
-from pymysql.cursors import Cursor
 
 
 def read_csv(path, header="infer"):

@@ -4,8 +4,8 @@ from multiprocessing.dummy import Pool as ThreadPool
 from functools import partial
 from dateutil.relativedelta import relativedelta
 import pandas as pd
-from util import io, config as cfg
-from util.decofactory import common
+from utils import io, config as cfg
+from utils.decofactory import common
 import calendar as cld
 
 DEFAULT_ENGINE = cfg.default_engine
