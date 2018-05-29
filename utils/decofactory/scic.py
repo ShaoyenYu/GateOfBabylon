@@ -103,39 +103,14 @@ def sample_check(which, sample_nums):
         def wrapper(*args, **kwargs):
             if type(sample_nums) is int:
                 for i in which:
-                    if len(args[i]) <= sample_nums:
+                    if len(args[i]) < sample_nums:
                         raise AssertionError("arg%s sample is not enough" % i)
 
             elif isinstance(sample_nums, Iterable):
                 for i in which:
-                    if len(args[i]) <= sample_nums[i]:
+                    if len(args[i]) < sample_nums[i]:
                         raise AssertionError("arg%s sample is not enough" % i)
 
             return func(*args, **kwargs)
         return wrapper
     return _sample_check
-
-
-def main():
-    @align(3, "align")
-    def t1(*args):
-        return args
-
-    @align(3, "each")
-    def t2(*args):
-        return args
-
-    def t3(*args):
-        return args
-
-    import numpy as np
-    q1 = np.array([1, 1, None, 1])
-    q2 = np.array([1, None, None, 3])
-    q3 = np.array([1, None, None, 4])
-    t1(q1, q2, q3)
-    t2(q1, q2, q3)
-    t3(q1, q2, q3)
-
-
-if __name__ == "__main__":
-    main()
