@@ -22,7 +22,7 @@ def log(f):
     return wrapper
 
 
-def hash_inscache(cacheattr, paramhash=False, selfhash=False):
+def hash_inscache(cacheattr, paramhash=False, selfhash=False, maxcache=-1):
     """
         Cache decorator for class instance, with different level of cache strategy.
 
@@ -34,6 +34,9 @@ def hash_inscache(cacheattr, paramhash=False, selfhash=False):
         selfhash: bool, default False
             whether to use self as a parameter to generate cache key. If True, the instance should support __hash__
             method;
+        maxcache: int, default -1
+            max cache number of keys. Cache dict will clear if length of cache exceed this number.
+            default -1, means no limit;
 
     """
 
@@ -49,6 +52,8 @@ def hash_inscache(cacheattr, paramhash=False, selfhash=False):
 
             if hasattr(self, cacheattr):
                 if hash_key not in self.__getattribute__(cacheattr):
+                    if 0 < maxcache <= len(self.__getattribute__(cacheattr)):
+                        self.__getattribute__(cacheattr).clear()
                     self.__getattribute__(cacheattr)[hash_key] = func(self, *args, **kwargs)
             else:
                 self.__setattr__(cacheattr, {hash_key: func(self, *args, **kwargs)})

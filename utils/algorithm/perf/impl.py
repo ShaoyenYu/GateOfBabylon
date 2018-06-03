@@ -1,6 +1,5 @@
 import numpy as np
-from utils.decofactory.meta import MultipleMeta
-from utils.decofactory.common import unhash_inscache, inscache
+from utils.metafactory.overloading import MultipleMeta
 
 
 __all__ = ["api"]
@@ -50,7 +49,6 @@ class Api(metaclass=MultipleMeta):
 
         Args:
             r: np.array
-                1-D, or 2-D ndarray
             m: int, default 1000
                 times of sampling
             alpha: float, default 0.05
@@ -62,12 +60,15 @@ class Api(metaclass=MultipleMeta):
         """
 
         np.random.seed(527)  # set seed for random
-
         n = len(r)
         j = int((n - 1) * alpha + 1)
         g = ((n - 1) * alpha + 1) - j
-        random_choice = np.random.randint(n, size=(m, n))
-        return_series_sorted = np.sort(r[random_choice])
+
+        # np.random.seed(527)  # set seed for random
+        # random_choice = np.random.randint(n, size=(m, n))
+        # return_series_sorted = np.sort(r[random_choice])
+
+        return_series_sorted = np.sort(np.random.choice(r, size=(m, n)))
         var_alpha = sum((g - 1) * return_series_sorted[:, j - 1] - g * return_series_sorted[:, j]) / m
 
         return max(0, var_alpha)
