@@ -11,7 +11,7 @@ ERROR_VAL = np.nan
 @align([0])
 def value_at_risk(r, m=1000, alpha=0.05):
     try:
-        return sample_check((0,), 2)(api.value_at_risk)(r, m, alpha)
+        return sample_check((0,), 2)(api.VaR)(r, m, alpha)
 
     except AssertionError:
         return ERROR_VAL
