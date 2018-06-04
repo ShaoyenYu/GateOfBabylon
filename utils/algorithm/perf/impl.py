@@ -35,6 +35,19 @@ class Api(metaclass=MultipleMeta):
     def min_return(self, r: np.ndarray):
         return r.min()
 
+    def persistence_er(self, r: np.ndarray, r_bm: np.ndarray):
+        er = r - r_bm
+        delta = er - er.mean()
+        return (delta[1:] * delta[:-1]).sum() / (delta ** 2).sum()
+
+    def upside_capture(self, r: np.ndarray, r_bm: np.ndarray):
+        idx_bmupside = (r_bm > 0)
+        return ((1 + r[idx_bmupside]).prod() - 1) / ((1 + r_bm[idx_bmupside]).prod() - 1)
+
+    def downside_capture(self, r: np.ndarray, r_bm: np.ndarray):
+        idx_bmdownside = (r_bm < 0)
+        return ((1 + r[idx_bmdownside]).prod() - 1) / ((1 + r_bm[idx_bmdownside]).prod() - 1)
+
     # Risk
     def standard_deviation(self, r: np.ndarray, ddof=1):
         return np.std(r, ddof=ddof)
@@ -218,6 +231,26 @@ class Api(metaclass=MultipleMeta):
         alpha = delta_pf.mean() - beta * delta_bf.mean()
         return (((delta_pf ** 2).sum() - alpha * s_p - beta * s_pb) / (T - 2)) ** .5
 
+    def assess_ratio(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray):
+        T = len(r)
+        delta_pf, delta_bf = r - r_rf, r_bm - r_rf
+        s_pb, s_p, s_b = (delta_pf * delta_bf).sum(), delta_pf.sum(), delta_bf.sum()
+
+        up = T * s_pb - s_p * s_b
+        down = T * (delta_bf ** 2).sum() - s_b ** 2
+        beta = up / down
+        alpha = delta_pf.mean() - beta * delta_bf.mean()
+        return alpha / (((delta_pf ** 2).sum() - alpha * s_p - beta * s_pb) / (T - 2)) ** .5
+
+    def sterling_a(self, p: np.ndarray, p_rf: np.ndarray, r: np.ndarray, t: np.ndarray):
+        return self.excess_return_a(p, p_rf, t) / self.average_drawdown(r)
+
+    def burke_a(self, p: np.ndarray, p_rf: np.ndarray, t: np.ndarray):
+        return self.excess_return_a(p, p_rf, t) / (self.drawdown(p) ** 2).sum() ** .5
+
+    def kappa_a(self, p: np.ndarray, p_rf: np.ndarray, r: np.ndarray, r_rf: np.ndarray, t: np.ndarray, period_y: int):
+        return self.excess_return_a(p, p_rf, t) / self.downside_deviation_a(r, r_rf, period_y, 3)
+
     def pain_ratio(self, p: np.ndarray, p_rf: np.ndarray, t: np.ndarray):
         return self.excess_return_a(p, p_rf, t) / self.pain_index(p)
 
@@ -231,9 +264,12 @@ def test():
     api.VaR(r, m, alpha)
     api.CVaR(r, m, alpha)
     np.nancumprod(np.where(r > 0, r, np.nan))
-    #
+
     # a1 = np.array([1, 2, 3, 4, 5])
     # a2 = np.array([2, 1, 4, 3, 5])
+    # a3 = (a1 - a2) * 0.1
+    # api.assess_ratio(a1, a2, a3)
+    # api.unsystematic_risk(a1, a2, a3)
 
 
 if __name__ == "__main__":
