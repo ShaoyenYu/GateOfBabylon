@@ -1,7 +1,6 @@
 import numpy as np
 from utils.metafactory.overloading import MultipleMeta
 
-
 __all__ = ["api"]
 
 
@@ -43,7 +42,7 @@ class Api(metaclass=MultipleMeta):
     def standard_deviation_a(self, r: np.ndarray, period_y: int):
         return self.standard_deviation(r) * period_y ** .5
 
-    def downside_deviation_a(self, r: np.ndarray, r_rf: np.ndarray, period_y: int, order: int=2):
+    def downside_deviation_a(self, r: np.ndarray, r_rf: np.ndarray, period_y: int, order: int = 2):
         delta = r - r_rf
         delta[delta > 0] = 0
         # todo 20180603 N阶年化下行标准差公式确认
@@ -52,11 +51,11 @@ class Api(metaclass=MultipleMeta):
     def drawdown(self, p: np.ndarray) -> np.ndarray:
         return np.maximum.accumulate(p) / p - 1
 
+    def average_drawdown(self, r: np.ndarray):
+        return -np.where(r > 0, 0, r).mean()
+
     def pain_index(self, p: np.ndarray):
         return self.drawdown(p)[1:].mean()
-
-    def pain_ratio(self, p: np.ndarray, p_rf: np.ndarray, t: np.ndarray):
-        return self.excess_return_a(p, p_rf, t) / self.pain_index(p)
 
     def max_drawdown(self, p: np.ndarray):
         return (1 - p / np.maximum.accumulate(p)).max()
@@ -82,7 +81,7 @@ class Api(metaclass=MultipleMeta):
     def kurtosis(self, r: np.ndarray):
         return self.unbias(r) * self.moment(r, 4) / self.standard_deviation(r, ddof=1) ** 4
 
-    def var_series(self, r: np.ndarray, m: int=1000, alpha: float=.05) -> np.ndarray:
+    def var_series(self, r: np.ndarray, m: int = 1000, alpha: float = .05) -> np.ndarray:
         np.random.seed(527)  # set seed for random
         n = len(r)
         j = int((n - 1) * alpha + 1)
@@ -96,7 +95,7 @@ class Api(metaclass=MultipleMeta):
         var_series = (g - 1) * return_series_sorted[:, j - 1] - g * return_series_sorted[:, j]
         return var_series
 
-    def VaR(self, r: np.ndarray, m: int=1000, alpha: float=.05):
+    def VaR(self, r: np.ndarray, m: int = 1000, alpha: float = .05):
         """
         Value at risk, aka. VaR
 
@@ -145,22 +144,82 @@ class Api(metaclass=MultipleMeta):
     def info_a(self, p: np.ndarray, p_bm: np.ndarray, r: np.ndarray, r_bm: np.ndarray, t: np.ndarray, period_y: int):
         return self.excess_return_a(p, p_bm, t) / self.tracking_error_a(r, r_bm, period_y)
 
+    def alpha(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray):
+        T = len(r)
+        delta_pf, delta_bf = r - r_rf, r_bm - r_rf
+        s_b = delta_bf.sum()
+
+        up = T * (delta_pf * delta_bf).sum() - delta_pf.sum() * s_b
+        down = T * (delta_bf ** 2).sum() - s_b ** 2
+
+        beta = up / down
+        return delta_pf.mean() - beta * delta_bf.mean()
+
+    def beta(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray):
+        T = len(r)
+        delta_pf, delta_bf = r - r_rf, r_bm - r_rf
+        s_b = delta_bf.sum()
+
+        up = T * (delta_pf * delta_bf).sum() - delta_pf.sum() * s_b
+        down = T * (delta_bf ** 2).sum() - s_b ** 2
+        return up / down
+
     def jensen_a(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray, period_y):
         T = len(r)
         delta_pf, delta_bf = r - r_rf, r_bm - r_rf
-        up = T * (delta_pf * delta_bf).sum() - delta_pf.sum() * delta_bf.sum()
-        down = T * (delta_bf ** 2).sum() - delta_bf.sum() ** 2
+        s_b = delta_bf.sum()
+
+        up = T * (delta_pf * delta_bf).sum() - delta_pf.sum() * s_b
+        down = T * (delta_bf ** 2).sum() - s_b ** 2
 
         beta = up / down
         alpha = delta_pf.mean() - beta * delta_bf.mean()
         return (1 + alpha) ** period_y - 1
 
-    def beta(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray):
+    def adjusted_jensen_a(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray, period_y):
         T = len(r)
         delta_pf, delta_bf = r - r_rf, r_bm - r_rf
-        up = T * (delta_pf * delta_bf).sum() - delta_pf.sum() * delta_bf.sum()
-        down = T * (delta_bf ** 2).sum() - delta_bf.sum() ** 2
-        return up / down
+        s_b = delta_bf.sum()
+
+        up = T * (delta_pf * delta_bf).sum() - delta_pf.sum() * s_b
+        down = T * (delta_bf ** 2).sum() - s_b ** 2
+
+        beta = up / down
+        alpha = delta_pf.mean() - beta * delta_bf.mean()
+        return ((1 + alpha) ** period_y - 1) / beta
+
+    def excess_pl(self, r: np.ndarray, r_bm: np.ndarray):
+        er = r - r_bm
+        up = np.where(er < 0, 0, er)
+        down = np.where(er > 0, 0, -er)
+        return up.sum() / down.sum()
+
+    def omega(self, r: np.ndarray, r_bm: np.ndarray):
+        er = r - r_bm
+        up = np.where(er < 0, 0, er)
+        down = np.where(er > 0, 0, -er)
+        return up.sum() / down.sum() * (er < 0).sum() / (er > 0).sum()
+
+    def hurst_holder(self, r: np.ndarray):
+        ys, zs = r.cumsum(), r - r.mean()
+        return np.log((ys.max() - ys.min()) / ((zs ** 2).sum() / (len(r) - 1)) ** .5) / np.log(len(r))
+
+    def corrcoef_spearman(self, r: np.ndarray, r_bm: np.ndarray):
+        return np.corrcoef(r, r_bm)[0, 1]
+
+    def unsystematic_risk(self, r: np.ndarray, r_bm: np.ndarray, r_rf: np.ndarray):
+        T = len(r)
+        delta_pf, delta_bf = r - r_rf, r_bm - r_rf
+        s_pb, s_p, s_b = (delta_pf * delta_bf).sum(), delta_pf.sum(), delta_bf.sum()
+
+        up = T * s_pb - s_p * s_b
+        down = T * (delta_bf ** 2).sum() - s_b ** 2
+        beta = up / down
+        alpha = delta_pf.mean() - beta * delta_bf.mean()
+        return (((delta_pf ** 2).sum() - alpha * s_p - beta * s_pb) / (T - 2)) ** .5
+
+    def pain_ratio(self, p: np.ndarray, p_rf: np.ndarray, t: np.ndarray):
+        return self.excess_return_a(p, p_rf, t) / self.pain_index(p)
 
 
 api = Api()  # new Api instance, and register overloading methods
@@ -172,6 +231,9 @@ def test():
     api.VaR(r, m, alpha)
     api.CVaR(r, m, alpha)
     np.nancumprod(np.where(r > 0, r, np.nan))
+    #
+    # a1 = np.array([1, 2, 3, 4, 5])
+    # a2 = np.array([2, 1, 4, 3, 5])
 
 
 if __name__ == "__main__":
