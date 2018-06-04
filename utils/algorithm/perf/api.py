@@ -9,7 +9,7 @@ ERROR_VAL = np.nan
 
 @auto([0])
 @align([0])
-def value_at_risk(r, m=1000, alpha=0.05):
+def VaR(r, m=1000, alpha=0.05):
     try:
         return sample_check((0,), 2)(api.VaR)(r, m, alpha)
 
@@ -178,8 +178,8 @@ class Calculator:
         return tracking_error_a(self.pf.r, self.bm.r_bm, self.period)
 
     @property
-    def value_at_risk(self):
-        return value_at_risk(self.pf.r)
+    def VaR(self):
+        return VaR(self.pf.r)
 
     @property
     def periods_neg(self):

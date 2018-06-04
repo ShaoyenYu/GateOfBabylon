@@ -37,8 +37,8 @@ class Api(metaclass=MultipleMeta):
         return r.min()
 
     # Risk
-    def standard_deviation(self, r: np.ndarray):
-        return np.std(r, ddof=1)
+    def standard_deviation(self, r: np.ndarray, ddof=1):
+        return np.std(r, ddof=ddof)
 
     def standard_deviation_a(self, r: np.ndarray, period_y: int):
         return self.standard_deviation(r) * period_y ** .5
@@ -70,7 +70,19 @@ class Api(metaclass=MultipleMeta):
     def periods_neg_prop(self, r: np.ndarray):
         return self.periods_neg(r) / len(r)
 
-    def var_series(self, r: np.ndarray, m : int=1000, alpha :float=.05):
+    def unbias(self, s: np.ndarray):
+        return 1 + 1 / (len(s) - 1)
+
+    def moment(self, s: np.ndarray, order: int):
+        return ((s - s.mean()) ** order).sum() / len(s)
+
+    def skewness(self, r: np.ndarray):
+        return self.unbias(r) * self.moment(r, 3) / self.standard_deviation(r, ddof=1) ** 3
+
+    def kurtosis(self, r: np.ndarray):
+        return self.unbias(r) * self.moment(r, 4) / self.standard_deviation(r, ddof=1) ** 4
+
+    def var_series(self, r: np.ndarray, m: int=1000, alpha: float=.05) -> np.ndarray:
         np.random.seed(527)  # set seed for random
         n = len(r)
         j = int((n - 1) * alpha + 1)
@@ -96,13 +108,12 @@ class Api(metaclass=MultipleMeta):
                 confidence level
 
         Returns:
-            float, or np.array[float]
+            float
 
         """
 
         var_series = self.var_series(r, m, alpha)
-        var_series[var_series < 0] = 0
-        var_alpha = var_series.mean()
+        var_alpha = np.where(var_series < 0, 0, var_series).mean()
         return var_alpha
 
     def CVaR(self, r: np.ndarray, m: int = 1000, alpha: float = .05):
@@ -113,11 +124,10 @@ class Api(metaclass=MultipleMeta):
 
         return_series_sorted = np.sort(np.random.choice(r, size=(m, n)))
         var_series = (g - 1) * return_series_sorted[:, j - 1] - g * return_series_sorted[:, j]
-        ix = return_series_sorted < -var_series.reshape((len(var_series), 1))
 
-        # todo 20180603 seeking better way for boolean indexing M * N matrix, instead of using list comprehension
-        cvar_series = np.array([return_series_sorted[i][ix[i]].mean() for i in range(len(ix))])
-        return np.nanmean(cvar_series)
+        cvar_series = np.where(
+            return_series_sorted < -var_series.reshape((len(var_series), 1)), return_series_sorted, np.nan)
+        return np.nanmean(np.nanmean(cvar_series, 1))
 
     # Risk-Adjusted Return
     def sharpe_a(self, p: np.ndarray, p_rf: np.ndarray, r: np.ndarray, t: np.ndarray, period_y: int):
@@ -153,6 +163,16 @@ class Api(metaclass=MultipleMeta):
         return up / down
 
 
-
-
 api = Api()  # new Api instance, and register overloading methods
+
+
+def test():
+    r = np.array([.1, .2, -.1, .3, .15, ])
+    m, alpha = 1000, .05
+    api.VaR(r, m, alpha)
+    api.CVaR(r, m, alpha)
+    np.nancumprod(np.where(r > 0, r, np.nan))
+
+
+if __name__ == "__main__":
+    test()
