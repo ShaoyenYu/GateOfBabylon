@@ -4,7 +4,6 @@ import pandas as pd
 from utils.algorithm import indicator
 reload(indicator)
 
-# TODO 使用unittest进行单元测试
 
 def main():
     from utils import config as cfg

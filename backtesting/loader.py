@@ -13,7 +13,7 @@ class StockDataLoader:
     engine = default_engine
 
     def load_price(self):
-        sql = "SELECT stock_id, date, close as value " \
+        sql = "SELECT stock_id, date, close_badj as value " \
               "FROM babylon.stock_kdata_d " \
               f"WHERE stock_id IN ({constructor.sqlfmt(self.stock_ids)}) " \
               f"AND date BETWEEN '{self.start}' AND '{self.end}'"

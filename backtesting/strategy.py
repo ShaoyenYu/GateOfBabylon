@@ -1,5 +1,6 @@
 from backtesting import account
 from utils.decofactory import common
+from utils.algorithm.perf import api
 
 
 class Strategy:
@@ -40,7 +41,24 @@ class T1(Strategy):
     def signal(self, wl):
         return self.price_signal(wl) * self.trans_signal(wl)
 
-    def pool(self, wl, period):
+    def by_signal(self, wl, period):
         s = self.signal(wl)
         lp = s.loc[s.index[-period:]].all()
-        return lp.loc[lp].index.tolist()
+        return set(lp.loc[lp].index)
+
+    def by_mdd(self, bin):
+        mdd = api.max_drawdown(self.stocks.price_series)
+        return set(mdd[(mdd >= bin[0]) & (mdd < bin[1])].index)
+
+    def by_var(self):
+        import numpy as np
+        var = api.VaR(self.stocks.return_series.values)
+        return set(self.stocks.return_series.columns[var < np.nanmean(var)])
+
+    def by_std(self):
+        import numpy as np
+        val = api.standard_deviation(self.stocks.return_series.values)
+        return set(self.stocks.return_series.columns[val < np.nanmean(val)])
+
+    def pool(self, wl, period, bin):
+        return list(self.by_signal(wl, period).intersection(self.by_mdd(bin)))
