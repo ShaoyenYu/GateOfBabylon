@@ -37,7 +37,7 @@ class T1(Strategy):
     def trans_signal(self, wl):
         return self._signal_by(self.stocks.turnover_series.dropna(axis=1, how="any"), wl)
 
-    @common.inscache("_cached")
+    @common.unhash_cache()
     def signal(self, wl):
         return self.price_signal(wl) * self.trans_signal(wl)
 

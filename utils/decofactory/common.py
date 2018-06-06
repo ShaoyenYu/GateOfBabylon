@@ -22,10 +22,9 @@ def log(f):
     return wrapper
 
 
-def hash_inscache(cacheattr, paramhash=False, selfhash=False, maxcache=-1):
+def hash_cache(cacheattr=None, paramhash=False, selfhash=False, maxcache=-1):
     """
         Cache decorator for class instance, with different level of cache strategy.
-
     Args:
         cacheattr: str
             instance attribute for storing cache;
@@ -37,47 +36,41 @@ def hash_inscache(cacheattr, paramhash=False, selfhash=False, maxcache=-1):
         maxcache: int, default -1
             max cache number of keys. Cache dict will clear if length of cache exceed this number.
             default -1, means no limit;
-
     """
 
     def _cache(func):
+        cachewhere = cacheattr or "_" + func.__name__
+
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(this, *args, **kwargs):
             to_pickle = [func.__name__]
             if paramhash:
                 to_pickle.extend([args, kwargs])
             if selfhash:
-                to_pickle.append(self.__hash__())
+                to_pickle.append(hash(this))
             hash_key = hashlib.md5(pickle.dumps(tuple(to_pickle))).hexdigest()
 
-            if hasattr(self, cacheattr):
-                if hash_key not in self.__getattribute__(cacheattr):
-                    if 0 < maxcache <= len(self.__getattribute__(cacheattr)):
-                        self.__getattribute__(cacheattr).clear()
-                    self.__getattribute__(cacheattr)[hash_key] = func(self, *args, **kwargs)
+            if hasattr(this, cachewhere):
+                if hash_key not in getattr(this, cachewhere):
+                    if 0 < maxcache <= len(getattr(this, cachewhere)):
+                        getattr(this, cachewhere).clear()
+                    getattr(this, cachewhere)[hash_key] = func(this, *args, **kwargs)
             else:
-                self.__setattr__(cacheattr, {hash_key: func(self, *args, **kwargs)})
+                setattr(this, cachewhere, {hash_key: func(this, *args, **kwargs)})
 
-            return self.__getattribute__(cacheattr)[hash_key]
-
+            return getattr(this, cachewhere)[hash_key]
         return wrapper
-
     return _cache
 
 
-def unhash_inscache(prefix="_", suffix=""):
+def unhash_cache(prefix="_", suffix=""):
     def _cache(func):
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(this, *args, **kwargs):
             fn = prefix + func.__name__ + suffix
-            if not hasattr(self, fn):
-                self.__setattr__(fn, func(self, *args, **kwargs))
+            if not hasattr(this, fn):
+                setattr(this, fn, func(this, *args, **kwargs))
 
-            return self.__getattribute__(fn)
-
+            return getattr(this, fn)
         return wrapper
-
     return _cache
-
-
-inscache = hash_inscache  # compatible to previous ver

@@ -35,13 +35,13 @@ class StockPosition(Position):
         Position.__init__(self, positions, start, end, freq)
 
     @property
-    @common.inscache("_cached")
+    @common.unhash_cache()
     def turnover_series(self):
         df = self.data_loader.load_turnover("b")
         return df.pivot(index="date", columns="stock_id", values="value")
 
     @property
-    @common.inscache("_cached")
+    @common.unhash_cache()
     def price_series(self):
         df = self.data_loader.load_price()
         df = df.pivot(index="date", columns="stock_id", values="value")
@@ -49,7 +49,7 @@ class StockPosition(Position):
         return df[mask[mask].index]
 
     @property
-    @common.inscache("_cached")
+    @common.unhash_cache()
     def type(self):
         return self.data_loader.load_type()
 

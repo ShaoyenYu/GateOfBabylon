@@ -1,31 +1,10 @@
 from utils.algorithm.perf.impl import api
 from utils.decofactory.scic import sample_check, align, auto
-from utils.decofactory.common import unhash_inscache
+from utils.decofactory.common import unhash_cache
 import numpy as np
 
 
 ERROR_VAL = np.nan
-
-
-@auto([0])
-@align([0])
-def VaR(r, m=1000, alpha=0.05):
-    try:
-        return sample_check((0,), 2)(api.VaR)(r, m, alpha)
-
-    except AssertionError:
-        return ERROR_VAL
-
-
-@auto([0, 1])
-@align([0, 1])
-def tracking_error_a(r, r_bm, period):
-    try:
-        return sample_check((0, 1,), 3)(api.tracking_error_a)(r, r_bm, period)
-
-    except AssertionError:
-        return ERROR_VAL
-
 
 @auto([0])
 @align([0])
@@ -51,10 +30,6 @@ def excess_return_a(p, p_bm, t):
     return return_a(p, t) - return_a(p_bm, t)
 
 
-def info_a(p, p_bm, r, r_bm, t, period):
-    return excess_return_a(p, p_bm, t) / tracking_error_a(r, r_bm, period)
-
-
 @auto([0])
 @align([0])
 def periods_pos(r):
@@ -77,6 +52,11 @@ def periods_pos_prop(r):
 
 @auto([0])
 @align([0])
+
+
+
+@auto([0])
+@align([0])
 def periods_neg(r):
     try:
         return sample_check((0,), 1)(api.periods_neg)(r)
@@ -93,6 +73,30 @@ def periods_neg_prop(r):
 
     except AssertionError:
         return ERROR_VAL
+
+
+@auto([0])
+@align([0])
+def VaR(r, m=1000, alpha=0.05):
+    try:
+        return sample_check((0,), 2)(api.VaR)(r, m, alpha)
+
+    except AssertionError:
+        return ERROR_VAL
+
+
+@auto([0, 1])
+@align([0, 1])
+def tracking_error_a(r, r_bm, period):
+    try:
+        return sample_check((0, 1,), 3)(api.tracking_error_a)(r, r_bm, period)
+
+    except AssertionError:
+        return ERROR_VAL
+
+
+def info_a(p, p_bm, r, r_bm, t, period):
+    return excess_return_a(p, p_bm, t) / tracking_error_a(r, r_bm, period)
 
 
 @auto([0])
@@ -120,17 +124,17 @@ class AcceleratedCalSeries:
         self.r_rf = r_rf
 
     @property
-    @unhash_inscache()
+    @unhash_cache()
     def p_rf(self):
         return np.array([1, *(1 + np.nancumsum(self.r_rf))])
 
     @property
-    @unhash_inscache()
+    @unhash_cache()
     def r(self):
         return self.p[1:] / self.p[:-1] - 1
 
     @property
-    @unhash_inscache()
+    @unhash_cache()
     def r_bm(self):
         return self.p_bm[1:] / self.p_bm[:-1] - 1
 
