@@ -6,6 +6,7 @@ import numpy as np
 
 ERROR_VAL = np.nan
 
+
 @auto([0])
 @align([0])
 def accumulative_return(p):
@@ -48,11 +49,6 @@ def periods_pos_prop(r):
 
     except AssertionError:
         return ERROR_VAL
-
-
-@auto([0])
-@align([0])
-
 
 
 @auto([0])

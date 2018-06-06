@@ -2,11 +2,10 @@ import calendar as cld
 import pandas as pd
 import datetime as dt
 from backtesting import basetype, loader
-from backtesting.strategy import T1
 from utils.decofactory import common
 from utils.config import default_engine
 from utils.algorithm.perf import api
-from importlib import reload
+
 
 
 class Account:
@@ -19,7 +18,7 @@ class Stock:
 
 
 class Position(basetype.TsProcessor):
-    def __init__(self, positions=None, start=None, end=None, freq="D"):
+    def __init__(self, positions=None, start=None, end=None, freq="d"):
         basetype.TsProcessor.__init__(self, start, end, freq)
         self.positions = positions
 
@@ -27,7 +26,7 @@ class Position(basetype.TsProcessor):
 class StockPosition(Position):
     engine = default_engine
 
-    def __init__(self, positions=None, start=None, end=None, freq="W-FRI"):
+    def __init__(self, positions=None, start=None, end=None, freq="w"):
         if positions is None:
             sql = "SELECT DISTINCT stock_id FROM stock_info WHERE name NOT LIKE '*%%'"
             positions = [x[0] for x in default_engine.execute(sql).fetchall()]
@@ -45,13 +44,12 @@ class StockPosition(Position):
     def price_series(self):
         df = self.data_loader.load_price()
         df = df.pivot(index="date", columns="stock_id", values="value")
-        mask = df.notnull().sum(0) > 1
-        return df[mask[mask].index]
+        return self.resample(df, self.freq).last()
 
     @property
     @common.unhash_cache()
-    def type(self):
-        return self.data_loader.load_type()
+    def type_sws(self):
+        return self.data_loader.load_type_sws()
 
     @property
     def return_series(self):

@@ -28,6 +28,8 @@ class StockDataLoader:
               f"AND type = '{types[bs]}'"
         return pd.read_sql(sql, self.engine)
 
-    def load_type(self):
-        sql = f"SELECT stock_id, industry FROM stock_info WHERE stock_id IN ({constructor.sqlfmt(self.stock_ids)})"
-        return pd.read_sql(sql, self.engine)
+    def load_type_sws(self):
+        sql = f"SELECT stock_id, type_name FROM stock_type_sws WHERE stock_id IN ({constructor.sqlfmt(self.stock_ids)})"
+        df = pd.read_sql(sql, self.engine)
+        return dict(zip(df["stock_id"], df["type_name"]))
+

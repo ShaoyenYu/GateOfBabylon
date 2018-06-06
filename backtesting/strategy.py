@@ -1,4 +1,4 @@
-from backtesting import account
+from backtesting.account import StockPosition
 from utils.decofactory import common
 from utils.algorithm.perf import api
 
@@ -21,7 +21,7 @@ class T1(Strategy):
     def __init__(self, start, end):
         self.start = start
         self.end = end
-        self.stocks = account.StockPosition(None, start, end, freq="D")
+        self.stocks = StockPosition(None, start, end, freq="D")
 
     @classmethod
     def _signal_by(cls, df, wl, direction="+"):
@@ -62,3 +62,35 @@ class T1(Strategy):
 
     def pool(self, wl, period, bin):
         return list(self.by_signal(wl, period).intersection(self.by_mdd(bin)))
+
+
+class T2:
+    """
+    1.数据频率用周或者月;
+    2.换仓周期为月度或者季度;
+    3.剔除周期(月或季)收益率为负数的股票;
+    4.通过正收益周期占比挑选每个行业前20的股票;
+    5.通过夏普比从20个中再挑10个;
+    6.通过GARCH(1，1)模型来做价格预测，计算每只股票预测收益率，
+    以此排序作为是否购买股票的依据，第一次建仓挑出预测收益率最大
+    且为正数股票(若股票超过十只则购买十只，不够十只则按实际数量购买)
+    """
+
+    import datetime as dt
+    s, e = dt.date(2018, 5, 1), dt.date(2018, 6, 6)
+    q = StockPosition(None, start=s, end=e, freq="d")
+    q.price_series
+    api.periods_pos_prop(q.return_series.values)
+
+    def __init__(self, start, end, freq="d"):
+        self.start, self.end, freq = start, end, freq
+        self.stocks = StockPosition(None, start, end, freq)
+
+    def by_return(self):
+        r = api.accumulative_return(self.stocks.price_series.values)
+        ids_rge0 = set(self.stocks.price_series.columns[r>0])
+        return ids_rge0
+
+    def by_prop(self):
+        r = api.periods_pos_prop(self.stocks.return_series.values)
+

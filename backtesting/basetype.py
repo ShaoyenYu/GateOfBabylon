@@ -1,17 +1,33 @@
 import datetime as dt
 import pandas as pd
-from dataclasses import dataclass
+from utils.timeutils import const
 
 
-@dataclass
 class TsProcessor:
-    start: dt.datetime
-    end: dt.datetime
-    freq: str = None
+    def __init__(self, start: dt.datetime, end: dt.datetime, freq: str=None):
+        self.start = start
+        self.end = end
+        self.freq = freq
 
     @property
     def date_range(self):
         return pd.date_range(self.start, self.end, self.freq)
 
     def resample(self, data: pd.DataFrame, freq=None):
-        return data.resample(rule=freq or self.freq)
+        if freq is None:
+            freq = const.bday_chn
+            closed = label = "left"
+        else:
+            if freq == "d":
+                freq = const.bday_chn
+                closed = label = "left"
+            elif freq[0].lower() == "w":
+                closed = label = "right"
+                if len(freq) == 1:
+                    weekmask = {0: "MON", 1: "TUE", 2: "WED", 3: "THU", 4: "FRI", 5: "SAT", 6: "SUN"}
+                    freq = f"{freq}-{weekmask[data.index[-1].weekday()]}"
+            elif freq[0].lower == "m":
+                freq = "m"
+                closed = label = "right"
+
+        return data.resample(rule=freq, closed=closed, label=label)
