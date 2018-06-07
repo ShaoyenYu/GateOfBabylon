@@ -5,10 +5,10 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
-from Scripts.ETL import (
+from scripts.etl import (
     stock_info, stock_turnover_d
 )
-from Scripts.Crawl import (
+from scripts.crawl import (
     stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d,
     index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d,
     stock_tickdata_d, ratio_treasury_bond
