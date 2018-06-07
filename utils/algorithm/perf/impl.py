@@ -62,7 +62,7 @@ class Api(metaclass=MultipleMeta):
         return period_y ** (1 / order) * (-(delta ** order).sum() / (len(r) - 1)) ** (1 / order)
 
     def drawdown(self, p: np.ndarray) -> np.ndarray:
-        return np.maximum.accumulate(p) / p - 1
+        return 1 - p / np.maximum.accumulate(p)
 
     def average_drawdown(self, r: np.ndarray):
         return -np.where(r > 0, 0, r).mean()

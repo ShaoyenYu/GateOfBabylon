@@ -30,4 +30,5 @@ class TsProcessor:
                 freq = "m"
                 closed = label = "right"
 
-        return data.resample(rule=freq, closed=closed, label=label)
+        dr = pd.date_range(self.start, self.end, freq=freq)
+        return data.resample(rule=freq, closed=closed, label=label).last().reindex(dr)

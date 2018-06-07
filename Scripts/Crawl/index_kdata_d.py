@@ -1,8 +1,8 @@
-from utils.crawler import crawler
+from utils.crawler import tucrawler
 
 
 def main():
-    crawler.IndexKdataCrawler(ktype="D").crwal()
+    tucrawler.IndexKdataCrawler(ktype="D").crwal()
 
 
 if __name__ == "__main__":

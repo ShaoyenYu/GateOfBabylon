@@ -13,7 +13,7 @@ class StockDataLoader:
     engine = default_engine
 
     def load_price(self):
-        sql = "SELECT stock_id, date, close_badj as value " \
+        sql = "SELECT stock_id, date, close as value " \
               "FROM babylon.stock_kdata_d " \
               f"WHERE stock_id IN ({constructor.sqlfmt(self.stock_ids)}) " \
               f"AND date BETWEEN '{self.start}' AND '{self.end}'"
@@ -33,3 +33,9 @@ class StockDataLoader:
         df = pd.read_sql(sql, self.engine)
         return dict(zip(df["stock_id"], df["type_name"]))
 
+    def load_riskfree(self):
+        sql = f"SELECT date, y1 as value " \
+              f"FROM ratio_treasury_bond " \
+              f"WHERE date BETWEEN '{self.start}' AND '{self.end}'"
+        df = pd.read_sql(sql, self.engine)
+        return df.set_index("date")["value"]

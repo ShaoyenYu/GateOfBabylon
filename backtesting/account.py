@@ -1,20 +1,12 @@
-import calendar as cld
-import pandas as pd
-import datetime as dt
+import numpy as np
 from backtesting import basetype, loader
 from utils.decofactory import common
 from utils.config import default_engine
 from utils.algorithm.perf import api
 
 
-
 class Account:
     pass
-
-
-class Stock:
-    def __init__(self, stock_id):
-        pass
 
 
 class Position(basetype.TsProcessor):
@@ -44,7 +36,25 @@ class StockPosition(Position):
     def price_series(self):
         df = self.data_loader.load_price()
         df = df.pivot(index="date", columns="stock_id", values="value")
-        return self.resample(df, self.freq).last()
+        return self.resample(df, self.freq)
+
+    @property
+    @common.unhash_cache()
+    def return_series_rf(self):
+        df = self.data_loader.load_riskfree()
+        df /= 100 * 365
+        return self.resample(df, self.freq).iloc[1:]
+
+    @property
+    @common.unhash_cache()
+    def perf(self):
+        calculator = api.Calculator(
+            p=self.price_series.values,
+            r_rf=self.return_series_rf.values,
+            t=np.array([x.timestamp() for x in self.price_series.index.to_pydatetime()]),
+            period={"d": 250, "w": 52}[self.freq]
+        )
+        return calculator
 
     @property
     @common.unhash_cache()
@@ -58,45 +68,7 @@ class StockPosition(Position):
 
     @property
     def cumret(self):
-        return api.accumulative_return(self.price_series.values).mean()
+        return np.nanmean(self.perf.accumulative_return)
+        # return api.accumulative_return(self.price_series.values).mean()
 
 
-def test_startegy(test_start):
-    get_end = lambda x: dt.date(x.year, x.month, cld.monthrange(x.year, x.month)[1])
-    test_end = get_end(test_start)
-
-    t = T1(test_start, test_end)
-
-    start = test_end + dt.timedelta(1)
-    end = get_end(start)
-    print("#" * 32, f"test: {test_start}-{test_end}, real: {start}-{end}", "#" * 32)
-    for wl, p in [(wl, p) for wl in range(3, 4) for p in [3, 4, 5, 7, 9, 10, 11]]:
-        # s = t.pool(wl, p, bi)
-        s = t.by_signal(wl, p).intersection(t.by_var()).intersection(t.by_std())
-        if s:
-            a = StockPosition(s, start=start, end=min(end, dt.date.today() - dt.timedelta(1)), freq="D")
-            print(f"Window Length: {wl}; Persis period: {p}; Pool Size: {len(s)}; Return Accumulative: {a.cumret}")
-    print("#" * 64, "\n")
-
-
-def test():
-    date_ranges = [dt.date(x.year, x.month, 1) for x in pd.date_range(dt.date(2018, 1, 1), dt.date(2018, 4, 30), freq="m")]
-    for test_start in date_ranges:
-        test_startegy(test_start)
-
-
-def test2():
-    s1, e1 = dt.date(2018, 1, 1), dt.date(2018, 1, 31)
-
-    t = T1(s1, e1)
-    t.by_std()
-    bi = (0, 0.15)
-
-    start, end = dt.date(2018, 2, 1), dt.date(2018, 2, 28)
-    for wl, p in [(wl, p) for wl in range(4, 5) for p in range(2, 3)]:
-        # s = t.pool(wl, p, bi)
-        s = t.by_signal(wl, p)
-        t.by_var()
-        if s:
-            a = StockPosition(s, start=start, end=end, freq="D")
-            print(f"Window Length: {wl}; Persis period: {p}; Pool Size: {len(s)}; Return Accumulative: {a.cumret}")

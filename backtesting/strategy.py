@@ -1,6 +1,7 @@
-from backtesting.account import StockPosition
+import pandas as pd
 from utils.decofactory import common
 from utils.algorithm.perf import api
+from backtesting.account import StockPosition
 
 
 class Strategy:
@@ -13,7 +14,7 @@ class Strategy:
         pass
 
 
-class T1(Strategy):
+class T1:
     """
     trend
     """
@@ -76,21 +77,47 @@ class T2:
     且为正数股票(若股票超过十只则购买十只，不够十只则按实际数量购买)
     """
 
-    import datetime as dt
-    s, e = dt.date(2018, 5, 1), dt.date(2018, 6, 6)
-    q = StockPosition(None, start=s, end=e, freq="d")
-    q.price_series
-    api.periods_pos_prop(q.return_series.values)
-
     def __init__(self, start, end, freq="d"):
         self.start, self.end, freq = start, end, freq
         self.stocks = StockPosition(None, start, end, freq)
 
     def by_return(self):
-        r = api.accumulative_return(self.stocks.price_series.values)
-        ids_rge0 = set(self.stocks.price_series.columns[r>0])
+        r = self.stocks.perf.accumulative_return
+        ids_rge0 = set(self.stocks.price_series.columns[r > 0])
         return ids_rge0
 
     def by_prop(self):
-        r = api.periods_pos_prop(self.stocks.return_series.values)
+        from functools import partial
+        import numpy as np
 
+        r1 = self.stocks.perf.periods_pos_prop
+        r2 = self.stocks.perf.sharpe_a
+        df = pd.DataFrame(np.array([r1, r2]).T, self.stocks.price_series.columns).reset_index()
+        df["type"] = df["stock_id"].apply(lambda x: self.stocks.type_sws.get(x))
+        df = df.dropna(subset=["type"])
+
+        f = partial(pd.Series.rank, ascending=False, pct=False)
+        df["pct0"] = df.groupby("type")[0].apply(f)
+        df["pct1"] = df.groupby("type")[1].apply(f)
+        df = df.sort_values(by=["type", "pct0", "pct1"], ascending=[True, True, True])
+        type_first10 = df.groupby("type")["stock_id"].apply(lambda x: set(list(x)[:1]))
+        return type_first10.to_dict()
+
+    @property
+    @common.unhash_cache()
+    def pool(self):
+        res = self.by_return()
+        tmp = set()
+        for tp, p1 in self.by_prop().items():
+            tmp = tmp.union(p1)
+        return res.intersection(tmp)
+
+
+def main():
+    import datetime as dt
+    s, e = dt.date(2018, 3, 1), dt.date(2018, 5, 15)
+    start, end = dt.datetime(2018, 5, 16), dt.datetime(2018, 6, 6)
+    # q = StockPosition(None, start=s, end=e, freq="d")
+    t = T2(s, e, "w")
+    a = StockPosition(t.pool, start, end, freq="d")
+    a.cumret
