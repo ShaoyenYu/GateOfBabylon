@@ -1,17 +1,10 @@
+import calendar as cld
+import datetime as dt
 import pandas as pd
+from backtesting.basetype import Stocks
+from dateutil.relativedelta import relativedelta
 from utils.decofactory import common
 from utils.algorithm.perf import api
-from backtesting.account import StockPosition
-
-
-class Strategy:
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            self.__setattr__(f"_{k}", v)
-        self._pool = []
-
-    def init(self):
-        pass
 
 
 class T1:
@@ -22,7 +15,7 @@ class T1:
     def __init__(self, start, end):
         self.start = start
         self.end = end
-        self.stocks = StockPosition(None, start, end, freq="D")
+        self.stocks = Stocks(None, start, end, freq="D")
 
     @classmethod
     def _signal_by(cls, df, wl, direction="+"):
@@ -71,15 +64,26 @@ class T2:
     2.换仓周期为月度或者季度;
     3.剔除周期(月或季)收益率为负数的股票;
     4.通过正收益周期占比挑选每个行业前20的股票;
-    5.通过夏普比从20个中再挑10个;
+    5.通过夏普比从20个中再挑10个 ->
     6.通过GARCH(1，1)模型来做价格预测，计算每只股票预测收益率，
     以此排序作为是否购买股票的依据，第一次建仓挑出预测收益率最大
     且为正数股票(若股票超过十只则购买十只，不够十只则按实际数量购买)
     """
 
-    def __init__(self, start, end, freq="d"):
-        self.start, self.end, freq = start, end, freq
-        self.stocks = StockPosition(None, start, end, freq)
+    def __init__(self, end, start=None, freq="d", **kwargs):
+        self.start, self.end, self.freq = start, end, freq
+        months, weeks, days = kwargs.get("months", 2), kwargs.get("weeks", 0), kwargs.get("days", 0)
+
+        if not self.start:
+            self.start = self.end - relativedelta(months=months, weeks=weeks, days=days)
+
+            if self.end.day == cld.monthrange(self.end.year, self.end.month)[1]:
+                y, m = self.start.year, self.start.month
+                self.start = dt.date(y, m, cld.monthrange(y, m)[1])
+
+            self.start += dt.timedelta(1)
+
+        self.stocks = Stocks(None, self.start, self.end, self.freq)
 
     def by_return(self):
         r = self.stocks.perf.accumulative_return
@@ -119,5 +123,5 @@ def main():
     start, end = dt.datetime(2018, 5, 16), dt.datetime(2018, 6, 6)
     # q = StockPosition(None, start=s, end=e, freq="d")
     t = T2(s, e, "w")
-    a = StockPosition(t.pool, start, end, freq="d")
+    a = Stocks(t.pool, start, end, freq="d")
     a.cumret
