@@ -1,13 +1,8 @@
-import datetime as dt
 from utils.crawler import tucrawler
 
 
-def main():
-    tucrawler.StockTickCrawler().crawl()
-
-
-def test():
-    tucrawler.StockTickCrawler(date_start=dt.date.today(), date_end=dt.date.today()).crawl()
+def main(start=None, end=None):
+    tucrawler.StockTickCrawler(date_start=start, date_end=end).crawl()
 
 
 if __name__ == "__main__":

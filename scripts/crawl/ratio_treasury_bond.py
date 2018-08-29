@@ -6,12 +6,9 @@ from lxml import html
 from utils import config as cfg, io
 
 
-def get_ratio(date):
-    end = date
-    start = end - dt.timedelta(7)
-
+def get_ratio(start, end):
     api = f"http://yield.chinabond.com.cn/cbweb-pbc-web/pbc" \
-          f"/historyQuery?startDate={start.strftime('%Y-%m-%d')}&endDate={date.strftime('%Y-%m-%d')}" \
+          f"/historyQuery?startDate={start.strftime('%Y-%m-%d')}&endDate={end.strftime('%Y-%m-%d')}" \
           f"&gjqx=0&qxId=hzsylqx&locale=cn_ZH"
     r = requests.get(api)
     t = html.fromstring(r.content)
@@ -24,12 +21,11 @@ def get_ratio(date):
     return res
 
 
-def main():
-    dr = pd.date_range(start=dt.date.today() - dt.timedelta(7), end=dt.date.today(), freq="D")
-
-    for d in dr:
-        io.to_sql("ratio_treasury_bond", cfg.default_engine, get_ratio(d))
+def main(start=None, end=None):
+    res = get_ratio(start, end)
+    print(res)
+    io.to_sql("ratio_treasury_bond", cfg.default_engine, res)
 
 
 if __name__ == "__main__":
-    main()
+    main(start=dt.date.today() - dt.timedelta(7), end=dt.date.today())

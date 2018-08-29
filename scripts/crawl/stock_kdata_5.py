@@ -1,8 +1,8 @@
 from utils.crawler import tucrawler
 
 
-def main():
-    tucrawler.StockKdataCrawler(ktype="5").crwal()
+def main(start=None, end=None):
+    tucrawler.StockKdataCrawler(ktype="5", date_start=start, date_end=end).crwal()
 
 
 if __name__ == "__main__":

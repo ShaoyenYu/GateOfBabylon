@@ -45,9 +45,9 @@ def fetch(date, engine):
         return err_list
 
 
-def main():
+def main(start=None, end=None):
     print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; START;")
-    dates = pd.date_range(dt.date.today() - dt.timedelta(7), dt.date.today(), freq="B")
+    dates = pd.date_range(date_start=start, date_end=end, freq="B")
     tasks = [date.date() for date in dates]
     pool = ThreadPool(20)
     engine = cfg.default_engine
@@ -59,4 +59,4 @@ def main():
 
 
 if __name__ == "__main__":
-    q = main()
+    main(dt.date.today() - dt.timedelta(7), dt.date.today())

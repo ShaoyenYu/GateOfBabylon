@@ -28,14 +28,14 @@ def save_to_db(dataframe):
     io.to_sql("stock_turnover", ENGINE, dataframe)
 
 
-def main():
+def main(start=None, end=None):
     ids = fetch_ids()
     p = ThreadPool(8)
-    for date in pd.date_range(dt.date.today() - dt.timedelta(4), dt.date.today() - dt.timedelta(0)):
+    for date in pd.date_range(start, end):
         p.apply_async(fetch_data, args=(ids, date), callback=save_to_db)
     p.close()
     p.join()
 
 
 if __name__ == "__main__":
-    main()
+    main((dt.date.today() - dt.timedelta(4)), dt.date.today())
