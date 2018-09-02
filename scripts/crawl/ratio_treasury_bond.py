@@ -3,7 +3,8 @@ import requests
 import numpy as np
 import pandas as pd
 from lxml import html
-from utils import config as cfg, io
+from utils import io
+from utils.configcenter import config as cfg
 
 
 def get_ratio(start, end):

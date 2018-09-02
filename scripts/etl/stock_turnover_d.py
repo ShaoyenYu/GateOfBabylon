@@ -1,8 +1,8 @@
 import datetime as dt
 import pandas as pd
-from utils import config as cfg, io
-from utils.sqlfactory import constructor
 from multiprocessing.dummy import Pool as ThreadPool
+from utils.configcenter import config as cfg
+from utils.sqlfactory import constructor
 
 
 ENGINE = cfg.default_engine

@@ -5,8 +5,11 @@ import tushare as ts
 from dateutil.relativedelta import relativedelta
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
-from utils import io, config as cfg
+from utils import io
+from utils.configcenter import config as cfg
 from utils.decofactory import common
+
+pro = ts.pro_api()
 
 DEFAULT_ENGINE = cfg.default_engine
 

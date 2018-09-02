@@ -1,5 +1,6 @@
-from utils import io, config as cfg
 import pandas as pd
+from utils import io
+from utils.configcenter import config as cfg
 
 engine = cfg.default_engine
 

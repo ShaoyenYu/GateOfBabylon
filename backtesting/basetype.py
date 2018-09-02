@@ -3,7 +3,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from backtesting import loader
 from utils.algorithm.perf import api
-from utils.config import default_engine
+from utils.configcenter import config as cfg
 from utils.decofactory import common
 from utils.timeutils.basetype import TsProcessor
 
@@ -59,7 +59,7 @@ class Stocks(Position):
             sql = "SELECT DISTINCT stock_id FROM stock_info " \
                   "WHERE name NOT LIKE '*%%' " \
                   f"AND initial_public_date < '{start - dt.timedelta(180)}'"
-            positions = [x[0] for x in default_engine.execute(sql).fetchall()]
+            positions = [x[0] for x in cfg.default_engine.execute(sql).fetchall()]
 
         self.data_loader = loader.StockDataLoader(positions, start, end)
         Position.__init__(self, positions, start, end, freq)

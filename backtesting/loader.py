@@ -1,7 +1,7 @@
 import datetime as dt
 import pandas as pd
 from dataclasses import dataclass
-from utils.config import default_engine
+from utils.configcenter import config as cfg
 from utils.sqlfactory import constructor
 
 
@@ -10,7 +10,7 @@ class TsLoader:
     ids: list
     start: dt.datetime
     end: dt.datetime
-    engine = default_engine
+    engine = cfg.default_engine
 
 
 class StockDataLoader(TsLoader):

@@ -1,9 +1,10 @@
-from utils import io, config as cfg
 import datetime as dt
 import pandas as pd
 import tushare as ts
-from multiprocessing.dummy import Pool as ThreadPool
 from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
+from utils import io
+from utils.configcenter import config as cfg
 
 
 def trans_date(datetime_num):
