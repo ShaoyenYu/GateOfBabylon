@@ -1,12 +1,12 @@
+import calendar as cld
 import datetime as dt
-import tushare as ts
-from multiprocessing.dummy import Pool as ThreadPool
-from functools import partial
-from dateutil.relativedelta import relativedelta
 import pandas as pd
+import tushare as ts
+from dateutil.relativedelta import relativedelta
+from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
 from utils import io, config as cfg
 from utils.decofactory import common
-import calendar as cld
 
 DEFAULT_ENGINE = cfg.default_engine
 
@@ -63,7 +63,7 @@ class BasicDataCrawler(BaseCrawler):
         return df
 
     def crawl(self):
-        # io.to_sql("babylon.stock_revenue", self.engine, self.revenue())
+        io.to_sql("babylon.stock_revenue", self.engine, self.revenue())
         io.to_sql("babylon.stock_cashflow", self.engine, self.cashflow())
 
 
@@ -333,7 +333,7 @@ class IndexKdataCrawler(KdataCrawler):
     index = True  # 调用reshaped_kdata方法时, 是否采集指数
 
     def load_codes(self):
-        self._code = sorted([x[0] for x in self.engine.execute("SELECT DISTINCT index_id FROM index_info").fetchall()])
+        self._code = sorted([x[0][:6] for x in self.engine.execute("SELECT DISTINCT index_id FROM index_info").fetchall()])
 
 
 class StockKdataCrawler(KdataCrawler):

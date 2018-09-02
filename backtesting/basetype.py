@@ -33,7 +33,7 @@ class Position(ABC, TsProcessor):
         kw = {
             "p": self.price_series.values,
             "t": np.array([x.timestamp() for x in self.time_series.to_pydatetime()]),
-            "period": self.freq2period[self.freq]
+            "period": self.freq2period[self.freq[:1].lower()]
         }
         return kw
 
@@ -117,7 +117,7 @@ class RiskfreeBenchmark(Position):
     @common.unhash_cache()
     def original_series(self):
         df = self.data_loader.load_return()
-        df /= (100 * self.trans[self.freq])
+        df /= (100 * self.trans[self.freq[:1].lower()])
         return self.resample(df, self.freq)
 
     @property

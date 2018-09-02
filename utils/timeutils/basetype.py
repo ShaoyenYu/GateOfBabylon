@@ -118,7 +118,7 @@ class TsProcessor:
                 if len(freq) == 1:
                     weekmask = {0: "MON", 1: "TUE", 2: "WED", 3: "THU", 4: "FRI", 5: "SAT", 6: "SUN"}
                     freq = f"{freq}-{weekmask[data.index[-1].weekday()]}"
-            elif freq[0].lower == "m":
+            elif freq[0].lower() == "m":
                 freq = "m"
                 closed = label = "right"
 
