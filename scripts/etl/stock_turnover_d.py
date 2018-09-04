@@ -1,6 +1,7 @@
 import datetime as dt
 import pandas as pd
 from multiprocessing.dummy import Pool as ThreadPool
+from utils import io
 from utils.configcenter import config as cfg
 from utils.sqlfactory import constructor
 
@@ -38,4 +39,4 @@ def main(start=None, end=None):
 
 
 if __name__ == "__main__":
-    main((dt.date.today() - dt.timedelta(4)), dt.date.today())
+    main((dt.date.today() - dt.timedelta(7)), dt.date.today())

@@ -9,7 +9,6 @@ from utils import io
 from utils.configcenter import config as cfg
 from utils.decofactory import common
 
-pro = ts.pro_api()
 
 DEFAULT_ENGINE = cfg.default_engine
 
