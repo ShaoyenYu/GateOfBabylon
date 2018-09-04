@@ -48,7 +48,7 @@ def fetch(date, engine):
 
 def main(start=None, end=None):
     print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {__name__}; START;")
-    dates = pd.date_range(date_start=start, date_end=end, freq="B")
+    dates = pd.date_range(start=start, end=end, freq="B")
     tasks = [date.date() for date in dates]
     pool = ThreadPool(20)
     engine = cfg.default_engine
