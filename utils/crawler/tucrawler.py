@@ -95,8 +95,8 @@ class KdataCrawler(BaseCrawler):
 
         self._code = [code] if type(code) is str else code
         self.ktype = kwargs.get("ktype")
-        self.date_end = kwargs.get("date_end", dt.date.today())
-        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(weeks=1))
+        self.date_end = kwargs.get("date_end") or dt.date.today()
+        self.date_start = kwargs.get("date_start") or self.date_end - relativedelta(weeks=1)
 
     def load_codes(self):
         """
@@ -335,7 +335,7 @@ class IndexKdataCrawler(KdataCrawler):
     index = True  # 调用reshaped_kdata方法时, 是否采集指数
 
     def load_codes(self):
-        self._code = sorted([x[0][:6] for x in self.engine.execute("SELECT DISTINCT index_id FROM index_info").fetchall()])
+        self._code = sorted([x[0][:6] for x in self.engine.execute("SELECT DISTINCT index_id FROM index_info WHERE LENGTH(index_id) = 6").fetchall()])
 
 
 class StockKdataCrawler(KdataCrawler):

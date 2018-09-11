@@ -22,7 +22,7 @@ def get_ratio(start, end):
     return res
 
 
-def main(start=None, end=None):
+def main(start=dt.date.today() - dt.timedelta(7), end=dt.date.today()):
     res = get_ratio(start, end)
     print(res)
     io.to_sql("ratio_treasury_bond", cfg.default_engine, res)

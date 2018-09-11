@@ -29,7 +29,7 @@ def save_to_db(dataframe):
     io.to_sql("stock_turnover", ENGINE, dataframe)
 
 
-def main(start=None, end=None):
+def main(start=dt.date.today() - dt.timedelta(7), end=dt.date.today()):
     ids = fetch_ids()
     p = ThreadPool(8)
     for date in pd.date_range(start, end):
