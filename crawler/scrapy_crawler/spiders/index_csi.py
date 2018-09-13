@@ -2,7 +2,6 @@ import datetime as dt
 import pandas as pd
 import re
 import scrapy
-from crawler.crawler.items.items import IndexCsiInfoItem, IndexCsiQuoteItem
 from utils import io
 from utils.configcenter import config as cfg
 from urllib.request import quote
@@ -16,7 +15,6 @@ class IndexSpider(scrapy.Spider):
     def start_requests(self):
         # http://www.csindex.com.cn/zh-CN/indices/index
 
-        from urllib.request import quote
         url = f"http://www.csindex.com.cn/zh-CN/indices/index?" \
               f"page=1&page_size=50&by=desc&order={quote('指数代码')}" \
               f"&data_type=json&class_1=1&class_2=2&class_3=3&class_4=4&class_5=5&class_6=6"
@@ -53,7 +51,12 @@ class IndexSpider(scrapy.Spider):
         df_tmp = pd.DataFrame(index_value)
         for col_name, val in resp.meta["data"].items():
             df_tmp[col_name] = val
-        df_tmp["tradedate"] = df_tmp["tradedate"].apply(lambda x: dt.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").date())
+        try:
+            df_tmp["tradedate"] = df_tmp["tradedate"].apply(lambda x: dt.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").date())
+        except Exception as e:
+            from scrapy.exceptions import IgnoreRequest
+            raise IgnoreRequest(e)
+
         df_tmp["base_date"] = df_tmp["base_date"].apply(lambda x: dt.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").date())
 
         mapping = {
@@ -68,6 +71,7 @@ class IndexSpider(scrapy.Spider):
 
         io.to_sql("babylon.index_info", cfg.default_engine, res_1)
         io.to_sql("babylon.index_quote_d", cfg.default_engine, res_2)
+
         # for d in res_1:
         #     yield IndexCsiInfoItem(d)
         #
@@ -101,7 +105,7 @@ class IndexCsiConstituteSpider(scrapy.Spider):
 def main():
     from scrapy import cmdline
     cmdline.execute("scrapy crawl index_csi_spider".split())
-    cmdline.execute("scrapy crawl index_csi_constitute_spider".split())
+    # cmdline.execute("scrapy crawl index_csi_constitute_spider".split())
 
 
 if __name__ == "__main__":

@@ -197,8 +197,8 @@ class TickCrawler(BaseCrawler):
         super().__init__(**kwargs)
 
         self._code = [code] if type(code) is str else code
-        self.date_end = kwargs.get("date_end", dt.date.today())
-        self.date_start = kwargs.get("date_start", self.date_end - relativedelta(days=0 + (self.date_end.weekday() - 4) * (self.date_end.weekday() in (5, 6))))
+        self.date_end = kwargs.get("date_end") or dt.date.today()
+        self.date_start = kwargs.get("date_start") or self.date_end - relativedelta(days=0 + (self.date_end.weekday() - 4) * (self.date_end.weekday() in (5, 6)))
 
     @classmethod
     def _safe_float(cls, x):

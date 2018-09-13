@@ -11,8 +11,8 @@
 
 BOT_NAME = 'crawler'
 
-SPIDER_MODULES = ['crawler.crawler.spiders']
-NEWSPIDER_MODULE = 'crawler.crawler.spiders'
+SPIDER_MODULES = ['crawler.scrapy_crawler.spiders']
+NEWSPIDER_MODULE = 'crawler.scrapy_crawler.spiders'
 
 LOG_LEVEL = "INFO"
 
@@ -66,7 +66,7 @@ CONCURRENT_REQUESTS = 32
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'crawler.crawler.pipelines.storage.MariaStoragePipeline': 300,
+    'crawler.scrapy_crawler.pipelines.storage.MariaStoragePipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
