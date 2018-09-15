@@ -2,6 +2,7 @@ import datetime as dt
 import pandas as pd
 import re
 import scrapy
+import xlrd
 from utils import io
 from utils.configcenter import config as cfg
 from urllib.request import quote
@@ -47,17 +48,16 @@ class IndexSpider(scrapy.Spider):
             yield scrapy.Request(api_index_quote, callback=self.parse_3, meta={"data": i_dict})
 
     def parse_3(self, resp):
-        index_value = eval(resp.text.replace("null", "None"))  # list
+        index_value = eval(resp.text.replace("null", "None"))  # -> list
         df_tmp = pd.DataFrame(index_value)
         for col_name, val in resp.meta["data"].items():
             df_tmp[col_name] = val
         try:
             df_tmp["tradedate"] = df_tmp["tradedate"].apply(lambda x: dt.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").date())
+            df_tmp["base_date"] = df_tmp["base_date"].apply(lambda x: dt.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").date())
         except Exception as e:
             from scrapy.exceptions import IgnoreRequest
             raise IgnoreRequest(e)
-
-        df_tmp["base_date"] = df_tmp["base_date"].apply(lambda x: dt.datetime.strptime(x, "%Y-%m-%d %H:%M:%S").date())
 
         mapping = {
             "index_code": "index_id", "indx_sname": "name", "index_ename": "name_en",
@@ -72,12 +72,6 @@ class IndexSpider(scrapy.Spider):
         io.to_sql("babylon.index_info", cfg.default_engine, res_1)
         io.to_sql("babylon.index_quote_d", cfg.default_engine, res_2)
 
-        # for d in res_1:
-        #     yield IndexCsiInfoItem(d)
-        #
-        # for d in res_2:
-        #     yield IndexCsiQuoteItem(d)
-
 
 class IndexCsiConstituteSpider(scrapy.Spider):
     name = "index_csi_constitute_spider"
@@ -85,7 +79,7 @@ class IndexCsiConstituteSpider(scrapy.Spider):
     def start_requests(self):
         # http://www.csindex.com.cn/zh-CN/downloads/indices?lb=%E5%85%A8%E9%83%A8&xl=%E5%85%A8%E9%83%A8
         url = f"http://www.csindex.com.cn/zh-CN/downloads/indices?" \
-              f"page=1&page_size=30&lb={quote('全部')}&xl={quote('全部')}" \
+              f"page=1&page_size=250&lb={quote('全部')}&xl={quote('全部')}" \
               f"&data_type=json"
 
         yield scrapy.Request(url, callback=self.parse_1)
@@ -94,18 +88,67 @@ class IndexCsiConstituteSpider(scrapy.Spider):
         total_page = int(re.search("\"total_page\":(\d*?),", resp.text).group(1))
         for page_no in range(1, total_page + 1):
             url = f"http://www.csindex.com.cn/zh-CN/downloads/indices?" \
-                  f"page={page_no}&page_size=30&lb={quote('全部')}&xl={quote('全部')}" \
+                  f"page={page_no}&page_size=250&lb={quote('全部')}&xl={quote('全部')}" \
                   f"&data_type=json"
             yield scrapy.Request(url, callback=self.parse_2)
 
     def parse_2(self, resp):
-        pass
+        l_urls = [x[-5:] for x in eval(re.search("\"list\":(\[.*\])", resp.text).group(1).replace("null", "None"))]
+
+        for urls in l_urls:
+            if urls[0]:  # perf
+                yield scrapy.Request(urls[0].replace("\\", ""), callback=self.parse_baseinfo)
+            if urls[3]:  # cons
+                yield scrapy.Request(urls[0].replace("\\", ""), callback=self.parse_baseinfo)
+            if urls[4]:  # weights
+                yield scrapy.Request(urls[0].replace("\\", ""), callback=self.parse_baseinfo)
+
+    @staticmethod
+    def parse_baseinfo(resp):
+        cols_quotes = {
+            "日期Date": "date", "指数代码Index Code": "index_id", "开盘Open": "open", "最高High": "high", "最低Low": "low",
+            "收盘Close": "close",
+            "成交量（股）Volume(share)": "volume", "成交量（万元）Volume(10 thousand CNY)": "volume",
+            "成交量（手）Volume(100 shares)": "volume", "成交金额（元）Turnover": "turnover",
+        }
+        cols_derivatives = {
+            "日期Date": "date", "指数代码Index Code": "index_id", "市盈率1（总股本）P/E1": "pe1",
+            "市盈率2（计算用股本）P/E2": "pe2", "股息率1（总股本）D/P1": "dp1", "股息率2（计算用股本）D/P2": "dp2"
+        }
+        df = pd.read_excel(xlrd.open_workbook(file_contents=resp.body), engine="xlrd").rename(columns={**cols_quotes, **cols_derivatives})
+        df["index_id"] = df["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
+
+        io.to_sql("babylon.index_quote_d", cfg.default_engine, df[list(set(cols_quotes.values()))])
+        io.to_sql("babylon.index_derivative_fin", cfg.default_engine, df[list(cols_derivatives.values())])
+
+    @staticmethod
+    def parse_constituents(resp):
+        cols = {
+            "日期Date": "date", "指数代码Index Code": "index_id", "成分券代码Constituent Code": "stock_id"
+        }
+        df = pd.read_excel(xlrd.open_workbook(file_contents=resp.body), engine="xlrd").rename(columns=cols)
+        df["index_id"] = df["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
+        df["stock_id"] = df["stock_id"].apply(lambda x: f"{str(x).zfill(6)}")
+
+        io.to_sql("babylon.index_constituents", cfg.default_engine, df[list(cols.values())])
+
+    @staticmethod
+    def parse_weight(resp):
+        cols = {
+            "日期Date": "date", "指数代码Index Code": "index_id", "成分券代码Constituent Code": "stock_id", "权重(%)Weight(%)": "weight"
+        }
+        df = pd.read_excel(xlrd.open_workbook(file_contents=resp.body), engine="xlrd").rename(columns=cols)
+        df["index_id"] = df["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
+        df["stock_id"] = df["stock_id"].apply(lambda x: f"{str(x).zfill(6)}")
+        df["weight"] /= 100
+
+        io.to_sql("babylon.index_constituents", cfg.default_engine, df[list(cols.values())])
 
 
 def main():
     from scrapy import cmdline
-    cmdline.execute("scrapy crawl index_csi_spider".split())
-    # cmdline.execute("scrapy crawl index_csi_constitute_spider".split())
+    # cmdline.execute("scrapy crawl index_csi_spider".split())
+    cmdline.execute("scrapy crawl index_csi_constitute_spider".split())
 
 
 if __name__ == "__main__":
