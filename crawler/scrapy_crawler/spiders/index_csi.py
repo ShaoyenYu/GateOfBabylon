@@ -64,7 +64,7 @@ class IndexSpider(scrapy.Spider):
             "base_point": "base_value", "tradedate": "date", "tclose": "close"
         }
         df_tmp.rename(columns=mapping, inplace=True)
-        df_tmp["index_id"] = df_tmp["index_id"].apply(lambda x: x + ".CSI")
+        df_tmp["index_id"] = df_tmp["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
 
         res_1 = df_tmp[["index_id", "name", "name_en", "base_date", "base_value"]][:1]
         res_2 = df_tmp[["index_id", "date", "close"]]

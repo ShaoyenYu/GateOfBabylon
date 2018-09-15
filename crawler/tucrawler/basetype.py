@@ -160,7 +160,7 @@ class KdataCrawler(BaseCrawler):
             result = dfs[None].join(
                 dfs["qfq"], how="outer", rsuffix="_fadj").join(
                 dfs["hfq"], how="outer", rsuffix="_badj")
-            return result
+            return result.dropna(subset="date")
 
         except KeyError:
             print(f"{code} has no data during {start}-{end}")

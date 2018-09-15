@@ -1,8 +1,8 @@
-from utils.crawler import tucrawler
+from crawler.tucrawler import basetype
 
 
 def main(start=None, end=None):
-    tucrawler.StockKdataCrawler(ktype="30", date_start=start, date_end=end).crwal()
+    basetype.StockKdataCrawler(ktype="30", date_start=start, date_end=end).crwal()
 
 
 if __name__ == "__main__":
