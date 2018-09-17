@@ -99,9 +99,9 @@ class IndexCsiConstituteSpider(scrapy.Spider):
             if urls[0]:  # perf
                 yield scrapy.Request(urls[0].replace("\\", ""), callback=self.parse_baseinfo)
             if urls[3]:  # cons
-                yield scrapy.Request(urls[0].replace("\\", ""), callback=self.parse_baseinfo)
+                yield scrapy.Request(urls[3].replace("\\", ""), callback=self.parse_constituents)
             if urls[4]:  # weights
-                yield scrapy.Request(urls[0].replace("\\", ""), callback=self.parse_baseinfo)
+                yield scrapy.Request(urls[4].replace("\\", ""), callback=self.parse_weight)
 
     @staticmethod
     def parse_baseinfo(resp):
@@ -119,7 +119,7 @@ class IndexCsiConstituteSpider(scrapy.Spider):
         df["index_id"] = df["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
 
         io.to_sql("babylon.index_quote_d", cfg.default_engine, df[list(set(cols_quotes.values()))])
-        io.to_sql("babylon.index_derivative_fin", cfg.default_engine, df[list(cols_derivatives.values())])
+        io.to_sql("babylon.index_fina_derivative", cfg.default_engine, df[list(cols_derivatives.values())])
 
     @staticmethod
     def parse_constituents(resp):
