@@ -6,5 +6,4 @@ def main(start=None, end=None):
 
 
 if __name__ == "__main__":
-    import datetime as dt
-    main(dt.datetime(2018, 7, 22), dt.datetime(2018, 8, 5))
+    main()
