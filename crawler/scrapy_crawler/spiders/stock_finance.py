@@ -14,11 +14,11 @@ class FinanceDataSpider(scrapy.Spider):
         stock_ids = [x[0] for x in cfg.default_engine.execute("SELECT DISTINCT stock_id FROM babylon.stock_info").fetchall()]
         api_types = ("BalanceSheet", "ProfitStatement", "CashFlow")
         api_url = self.base_url + "/corp/go.php/vFD_{api_type}/stockid/{stock_id}/ctrl/part/displaytype/1.phtml"
-        for api_type in api_types[:1]:
-            for stock_id in stock_ids:
-                yield scrapy.Request(
-                    api_url.format(stock_id=stock_id, api_type=api_type),
-                    callback=self.parse_balance_sheet, meta={"data": {"stock_id": stock_id}})
+        for stock_id in stock_ids:
+            meta = {"data": {"stock_id": stock_id}}
+            yield scrapy.Request(api_url.format(stock_id=stock_id, api_type=api_types[0]), callback=self.parse_balance_sheet, meta=meta)
+            # yield scrapy.Request(api_url.format(stock_id=stock_id, api_type=api_types[1]), callback=self.parse_balance_sheet, meta=meta)
+            # yield scrapy.Request(api_url.format(stock_id=stock_id, api_type=api_types[2]), callback=self.parse_balance_sheet, meta=meta)
 
     def parse_balance_sheet(self, resp):
         trs = resp.xpath("//table[@id='BalanceSheetNewTable0']/tbody/tr")
