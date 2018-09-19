@@ -146,9 +146,11 @@ class IndexCsiConstituteSpider(scrapy.Spider):
 
 
 def main():
-    from scrapy import cmdline
-    # cmdline.execute("scrapy crawl index_csi_spider".split())
-    cmdline.execute("scrapy crawl index_csi_constitute_spider".split())
+    from scrapy.crawler import CrawlerProcess
+    process = CrawlerProcess()
+    for spider in (IndexSpider, IndexCsiConstituteSpider):
+        process.crawl(spider)
+    process.start()
 
 
 if __name__ == "__main__":
