@@ -146,7 +146,7 @@ class Api(metaclass=MultipleMeta):
         return self.excess_return_a(p, p_rf, t) / self.standard_deviation_a(r, period_y)
 
     def calmar_a(self, p: np.ndarray, p_rf: np.ndarray, t: np.ndarray):
-        return self.excess_return_a(p, p_rf, t) - self.max_drawdown(p)
+        return self.excess_return_a(p, p_rf, t) / self.max_drawdown(p)
 
     def sortino_a(self, p: np.ndarray, p_rf: np.ndarray, t: np.ndarray, r: np.ndarray, r_rf, period_y):
         return self.excess_return_a(p, p_rf, t) / self.downside_deviation_a(r, r_rf, period_y, 2)
