@@ -1,19 +1,9 @@
-import os
-import pandas as pd
-import shutil
 import sys
-import re
+import os
 import pymysql
+import re
 import time
-from openpyxl import load_workbook
-
-
-def read_csv(path, header="infer"):
-    try:
-        df = pd.read_csv(path, encoding="gbk", header=header)
-        return df
-    except Exception as e:
-        print(e)
+import pandas as pd
 
 
 def sql_cols(df, usage="sql"):
@@ -174,17 +164,8 @@ def get_filenames(relative_path):
         pass
 
 
-def check_filetype(file_path):
-    file_suffix = file_path[-4:]
-    if file_suffix == ".csv":
-        return "spot"
-    elif file_suffix == ".txt":
-        return "future"
-    else:
-        raise TypeError("Unknown File Type")
-
-
 def export_to_xl(df_dict, file_name="ddls", path=os.path.join(os.path.expanduser("~"), 'Desktop')):
+    from openpyxl import load_workbook
     file_path = os.path.join(path, file_name)
     if ".xlsx" not in file_path.lower():
         file_path += ".xlsx"
@@ -202,28 +183,3 @@ def export_to_xl(df_dict, file_name="ddls", path=os.path.join(os.path.expanduser
         v = v.astype(str)
         v.to_excel(writer, "{tb_name}".format(tb_name=k, index=False), index=False)
         writer.save()
-
-
-def move_file(file, folder_tgt, suffix=0):
-    if os.path.isdir(folder_tgt) is False:
-        os.mkdir(folder_tgt)
-
-    if os.path.isfile(file):
-        file_name = os.path.split(file)[1]
-
-    file_type = file_name.split(".")[-1]
-
-    new_name = os.path.join(folder_tgt, file_name)
-    while os.path.isfile(new_name):
-        suffix += 1
-        new_name = os.path.join(
-            folder_tgt,
-            "{fn}({sfx}).{ft}".format(
-                fn=file_name[:-(len(file_type) + 1)],
-                sfx=suffix,
-                ft=file_type
-            )
-        )
-
-    shutil.copy(file, new_name)
-    os.remove(file)
