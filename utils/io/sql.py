@@ -61,6 +61,7 @@ def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False)
     tb_name = ".".join([f"`{x}`" for x in tb_name.split(".")])
 
     df = dataframe.copy(deep=False)
+    # todo 20180922 can directly fillna with NULL, need to add test
     df = df.fillna("None")
     df = df.applymap(lambda x: re.sub('([\'\"\\\])', '\\\\\g<1>', str(x)))
     cols_str = sql_cols(df)

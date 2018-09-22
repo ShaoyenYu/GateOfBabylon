@@ -3,7 +3,7 @@ import pandas as pd
 import tushare as ts
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 
 
@@ -35,8 +35,8 @@ def fetch(date, engine):
         df_valuation = df[cols_valuation]
         df_valuation.columns = cols_valuation_
         with engine.connect() as conn:
-            io.to_sql("stock_info_hist", conn, df_info)
-            io.to_sql("stock_valuation", conn, df_valuation)
+            sql.to_sql("stock_info_hist", conn, df_info)
+            sql.to_sql("stock_valuation", conn, df_valuation)
             conn.close()
         return True
     except Exception as e:

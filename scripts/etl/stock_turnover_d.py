@@ -1,7 +1,7 @@
 import datetime as dt
 import pandas as pd
 from multiprocessing.dummy import Pool as ThreadPool
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 from utils.sqlfactory import constructor
 
@@ -26,7 +26,7 @@ def fetch_data(stock_ids, date):
 
 def save_to_db(dataframe):
     print(dataframe)
-    io.to_sql("stock_turnover", ENGINE, dataframe)
+    sql.to_sql("stock_turnover", ENGINE, dataframe)
 
 
 def main(start=dt.date.today() - dt.timedelta(7), end=dt.date.today()):

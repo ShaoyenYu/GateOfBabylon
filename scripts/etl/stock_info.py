@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 
 engine = cfg.default_engine
@@ -20,7 +20,7 @@ def fetch():
 def main():
     df_stock_info = fetch()
     with engine.connect() as conn:
-        io.to_sql("stock_info", conn, df_stock_info)
+        sql.to_sql("stock_info", conn, df_stock_info)
         conn.close()
 
 

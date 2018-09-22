@@ -5,7 +5,7 @@ import tushare as ts
 from dateutil.relativedelta import relativedelta
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 from utils.decofactory import common
 
@@ -65,8 +65,8 @@ class BasicDataCrawler(BaseCrawler):
         return df
 
     def crawl(self):
-        io.to_sql("babylon.stock_revenue", self.engine, self.revenue())
-        io.to_sql("babylon.stock_cashflow", self.engine, self.cashflow())
+        sql.to_sql("babylon.stock_revenue", self.engine, self.revenue())
+        sql.to_sql("babylon.stock_cashflow", self.engine, self.cashflow())
 
 
 # K线数据基类
@@ -167,7 +167,7 @@ class KdataCrawler(BaseCrawler):
 
     def store(self, data: pd.DataFrame):
         if data is not None:
-            io.to_sql(self.tables[self.ktype], self.engine, data)
+            sql.to_sql(self.tables[self.ktype], self.engine, data)
 
     @common.log
     def crwal(self):
@@ -301,7 +301,7 @@ class TickCrawler(BaseCrawler):
             data["__ys"] = data["time"].apply(lambda x: x.strftime("%Y%m"))
             year_season = set(data["__ys"])
             for ys in year_season:
-                io.to_sql(f"stock_tickdata_{ys}", self.engine, data.loc[data["__ys"] == ys, original_cols])
+                sql.to_sql(f"stock_tickdata_{ys}", self.engine, data.loc[data["__ys"] == ys, original_cols])
 
     def crawl(self):
         """

@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import scrapy
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 
 
@@ -60,12 +60,12 @@ class FinanceDataSpider(scrapy.Spider):
             res[resp.meta["col"]] = res[resp.meta["col"]].apply(lambda x: float(x) if x != "" else None)
 
             try:
-                io.to_sql(resp.meta["save_to"], cfg.default_engine, res)
+                sql.to_sql(resp.meta["save_to"], cfg.default_engine, res)
             except:
-                sql = f"ALTER TABLE `{resp.meta['save_to']}` ADD COLUMN `{resp.meta['col']}` decimal(20,4) DEFAULT NULL COMMENT '{resp.meta['comm']}'"
-                print(sql)
-                cfg.default_engine.execute(sql)
-                io.to_sql(resp.meta["save_to"], cfg.default_engine, res)
+                sql_ = f"ALTER TABLE `{resp.meta['save_to']}` ADD COLUMN `{resp.meta['col']}` decimal(20,4) DEFAULT NULL COMMENT '{resp.meta['comm']}'"
+                print(sql_)
+                cfg.default_engine.execute(sql_)
+                sql.to_sql(resp.meta["save_to"], cfg.default_engine, res)
 
 
 def main():

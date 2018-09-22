@@ -3,7 +3,7 @@ import requests
 import numpy as np
 import pandas as pd
 from lxml import html
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 
 
@@ -25,7 +25,7 @@ def get_ratio(start, end):
 def main(start=dt.date.today() - dt.timedelta(7), end=dt.date.today()):
     res = get_ratio(start, end)
     print(res)
-    io.to_sql("ratio_treasury_bond", cfg.default_engine, res)
+    sql.to_sql("ratio_treasury_bond", cfg.default_engine, res)
 
 
 if __name__ == "__main__":

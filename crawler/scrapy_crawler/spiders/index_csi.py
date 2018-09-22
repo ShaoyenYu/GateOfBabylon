@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import scrapy
 import xlrd
-from utils import io
+from utils.io import sql
 from utils.configcenter import config as cfg
 from urllib.request import quote
 
@@ -69,8 +69,8 @@ class IndexSpider(scrapy.Spider):
         res_1 = df_tmp[["index_id", "name", "name_en", "base_date", "base_value"]][:1]
         res_2 = df_tmp[["index_id", "date", "close"]]
 
-        io.to_sql("babylon.index_info", cfg.default_engine, res_1)
-        io.to_sql("babylon.index_quote_d", cfg.default_engine, res_2)
+        sql.to_sql("babylon.index_info", cfg.default_engine, res_1)
+        sql.to_sql("babylon.index_quote_d", cfg.default_engine, res_2)
 
 
 class IndexCsiConstituteSpider(scrapy.Spider):
@@ -118,8 +118,8 @@ class IndexCsiConstituteSpider(scrapy.Spider):
         df = pd.read_excel(xlrd.open_workbook(file_contents=resp.body), engine="xlrd").rename(columns={**cols_quotes, **cols_derivatives})
         df["index_id"] = df["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
 
-        io.to_sql("babylon.index_quote_d", cfg.default_engine, df[list(set(cols_quotes.values()))])
-        io.to_sql("babylon.index_fina_derivative", cfg.default_engine, df[list(cols_derivatives.values())])
+        sql.to_sql("babylon.index_quote_d", cfg.default_engine, df[list(set(cols_quotes.values()))])
+        sql.to_sql("babylon.index_fina_derivative", cfg.default_engine, df[list(cols_derivatives.values())])
 
     @staticmethod
     def parse_constituents(resp):
@@ -130,7 +130,7 @@ class IndexCsiConstituteSpider(scrapy.Spider):
         df["index_id"] = df["index_id"].apply(lambda x: f"{str(x).zfill(6)}.CSI")
         df["stock_id"] = df["stock_id"].apply(lambda x: f"{str(x).zfill(6)}")
 
-        io.to_sql("babylon.index_constituents", cfg.default_engine, df[list(cols.values())])
+        sql.to_sql("babylon.index_constituents", cfg.default_engine, df[list(cols.values())])
 
     @staticmethod
     def parse_weight(resp):
@@ -142,7 +142,7 @@ class IndexCsiConstituteSpider(scrapy.Spider):
         df["stock_id"] = df["stock_id"].apply(lambda x: f"{str(x).zfill(6)}")
         df["weight"] /= 100
 
-        io.to_sql("babylon.index_constituents", cfg.default_engine, df[list(cols.values())])
+        sql.to_sql("babylon.index_constituents", cfg.default_engine, df[list(cols.values())])
 
 
 def main():
