@@ -1,9 +1,7 @@
 import sys
-import os
 import pymysql
 import re
 import time
-import pandas as pd
 
 
 def sql_cols(df, usage="sql"):
@@ -25,29 +23,30 @@ def sql_cols(df, usage="sql"):
         return base
 
 
-def to_sql(tb_name, conn, dataframe, type="update", chunksize=2000, debug=False):
+def to_sql(tb_name: str, conn, dataframe, type: str="update", chunksize: int=2000, debug: bool=False):
     """
     Dummy of pandas.to_sql, support "REPLACE INTO ..." and "INSERT ... ON DUPLICATE KEY UPDATE (keys) VALUES (values)"
     SQL statement.
 
     Args:
         tb_name: str
-            Table to insert get_data;
+            Table to insert data;
         conn:
-            DBAPI Instance
+            DBAPI Instance, could be a engine, or a connection
         dataframe: pandas.DataFrame
             Dataframe instance
-        type: str, optional {"update", "replace", "ignore"}, default "update"
-            Specified the way to update get_data. If "update", then `conn` will execute "INSERT ... ON DUPLICATE UPDATE ..."
-            SQL statement, else if "replace" chosen, then "REPLACE ..." SQL statement will be executed; else if "ignore" chosen,
-            then "INSERT IGNORE ..." will be excuted;
+        type: str, optional value {"update", "replace", "ignore"}, default "update"
+            Update method:
+            "update" -> "INSERT ... ON DUPLICATE UPDATE ..." SQL statement;
+            "replace" -> "REPLACE ..." SQL statement;
+            "ignore" -> "INSERT IGNORE ..." SQL statement;
         chunksize: int
             Size of records to be inserted each time;
-        **kwargs:
+        debug: bool, default False
+            don't use, will be deprecated in future
 
-    Returns:
-        None
     """
+
     tb_name = ".".join([f"`{x}`" for x in tb_name.split(".")])
 
     df = dataframe.copy(deep=False)
@@ -121,6 +120,7 @@ def delete(tb_name, conn, dataframe, chunksize=10000):
     Returns:
 
     """
+
     dataframe = dataframe.dropna()
     for i in range(0, len(dataframe), chunksize):
         df = dataframe[i: i + chunksize]
@@ -154,32 +154,3 @@ def generate_condition(dataframe):
 
         condition = " OR ".join(conditions)
     return condition
-
-
-def get_filenames(relative_path):
-    try:
-        file_names = list(os.walk(relative_path))
-        return file_names[0][2]
-    except Exception as e:
-        pass
-
-
-def export_to_xl(df_dict, file_name="ddls", path=os.path.join(os.path.expanduser("~"), 'Desktop')):
-    from openpyxl import load_workbook
-    file_path = os.path.join(path, file_name)
-    if ".xlsx" not in file_path.lower():
-        file_path += ".xlsx"
-    tmp = pd.DataFrame()
-    tmp.to_excel(file_path, index=False)
-
-    dict_items = sorted(df_dict.items(), key=lambda d: d[0], reverse=False)
-
-    for k, v in dict_items:
-        book = load_workbook("{path}".format(path=file_path))
-        writer = pd.ExcelWriter("{path}".format(path=file_path), engine='openpyxl')
-        writer.book = book
-        writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-        v = v.fillna("")
-        v = v.astype(str)
-        v.to_excel(writer, "{tb_name}".format(tb_name=k, index=False), index=False)
-        writer.save()
