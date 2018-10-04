@@ -1,20 +1,31 @@
 import calendar as cld
 import datetime as dt
 import pandas as pd
-from backtesting.basetype import Stocks
 from dateutil.relativedelta import relativedelta
-from utils.decofactory import common
+from typing import Union
 from utils.algorithm.perf import api
+from utils.backtesting.basetype import Stocks
+from utils.decofactory import common
+
+TimeType = Union[dt.date, dt.datetime]
 
 
-class T1:
+class BaseStrategy:
+    def __init__(self, start: TimeType = None, end: TimeType = None):
+        self.start = start
+        self.end = end
+
+    def position(self, *args, **kwargs):
+        pass
+
+
+class T1(BaseStrategy):
     """
     trend
     """
 
     def __init__(self, start, end):
-        self.start = start
-        self.end = end
+        BaseStrategy.__init__(self, start, end)
         self.stocks = Stocks(None, start, end, freq="D")
 
     @classmethod
@@ -40,9 +51,9 @@ class T1:
         lp = s.loc[s.index[-period:]].all()
         return set(lp.loc[lp].index)
 
-    def by_mdd(self, bin):
+    def by_mdd(self, bin_):
         mdd = api.max_drawdown(self.stocks.price_series)
-        return set(mdd[(mdd >= bin[0]) & (mdd < bin[1])].index)
+        return set(mdd[(mdd >= bin_[0]) & (mdd < bin_[1])].index)
 
     def by_var(self):
         import numpy as np
@@ -54,11 +65,11 @@ class T1:
         val = api.standard_deviation(self.stocks.return_series.values)
         return set(self.stocks.return_series.columns[val < np.nanmean(val)])
 
-    def pool(self, wl, period, bin):
-        return list(self.by_signal(wl, period).intersection(self.by_mdd(bin)))
+    def position(self, wl, period, bin_):
+        return list(self.by_signal(wl, period).intersection(self.by_mdd(bin_)))
 
 
-class T2:
+class T2(BaseStrategy):
     """
     1.数据频率用周或者月;
     2.换仓周期为月度或者季度;
@@ -70,8 +81,9 @@ class T2:
     且为正数股票(若股票超过十只则购买十只，不够十只则按实际数量购买)
     """
 
-    def __init__(self, end, start=None, freq="d", **kwargs):
-        self.start, self.end, self.freq = start, end, freq
+    def __init__(self, start=None, end=None, freq="d", **kwargs):
+        BaseStrategy.__init__(self, start, end)
+        self.freq = freq
         months, weeks, days = kwargs.get("months", 2), kwargs.get("weeks", 0), kwargs.get("days", 0)
 
         if not self.start:
@@ -109,7 +121,7 @@ class T2:
 
     @property
     @common.unhash_cache()
-    def pool(self):
+    def position(self):
         res = self.by_return()
         tmp = set()
         for tp, p1 in self.by_prop().items():
@@ -118,10 +130,9 @@ class T2:
 
 
 def main():
-    import datetime as dt
     s, e = dt.date(2018, 3, 1), dt.date(2018, 5, 15)
-    start, end = dt.datetime(2018, 5, 16), dt.datetime(2018, 6, 6)
+    start, end = dt.datetime(2018, 8, 1), dt.datetime(2018, 9, 29)
     # q = StockPosition(None, start=s, end=e, freq="d")
     t = T2(s, e, "w")
-    a = Stocks(t.pool, start, end, freq="d")
-    a.cumret
+    a = Stocks(t.position, start, end, freq="d")
+    print(a.cumret)

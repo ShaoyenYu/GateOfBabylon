@@ -1,7 +1,7 @@
 import datetime as dt
 import numpy as np
 from abc import ABC, abstractmethod
-from backtesting import loader
+from utils.backtesting import loader
 from utils.algorithm.perf import api
 from utils.configcenter import config as cfg
 from utils.decofactory import common
@@ -52,7 +52,7 @@ class Position(ABC, TsProcessor):
 
 
 class Stocks(Position):
-    engine = default_engine
+    engine = cfg.default_engine
 
     def __init__(self, positions=None, start=None, end=None, freq="d"):
         if positions is None:

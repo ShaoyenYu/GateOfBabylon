@@ -1,16 +1,15 @@
 import datetime as dt
 import pandas as pd
-from dataclasses import dataclass
 from utils.configcenter import config as cfg
 from utils.sqlfactory import constructor
 
 
-@dataclass
 class TsLoader:
-    ids: list
-    start: dt.datetime
-    end: dt.datetime
-    engine = cfg.default_engine
+    def __init__(self, ids: list, start: dt.datetime, end: dt.datetime, engine=None):
+        self.ids = ids
+        self.start = start
+        self.end = end
+        self.engine = engine or cfg.default_engine
 
 
 class StockDataLoader(TsLoader):

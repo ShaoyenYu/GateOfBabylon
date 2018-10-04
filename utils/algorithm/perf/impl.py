@@ -1,5 +1,5 @@
 import numpy as np
-from utils.metafactory.overloading import MultipleMeta
+from utils.decofactory.meta.overloading import MultipleMeta
 
 __all__ = ["api"]
 
