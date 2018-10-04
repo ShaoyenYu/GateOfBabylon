@@ -121,6 +121,8 @@ class TsProcessor:
             elif freq[0].lower() == "m":
                 freq = "m"
                 closed = label = "right"
+            else:
+                raise ValueError(f"Not Supported Frequency: {freq}")
 
         dr = pd.date_range(self.start, self.end, freq=freq)
         return data.resample(rule=freq, closed=closed, label=label).last().reindex(dr)

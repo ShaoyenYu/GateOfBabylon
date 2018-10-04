@@ -3,7 +3,6 @@ from utils.decofactory.scic import sample_check, align, auto
 from utils.decofactory.common import unhash_cache
 import numpy as np
 
-
 ERROR_VAL = np.nan
 
 
@@ -137,9 +136,9 @@ class AcceleratedCalSeries:
 
 class Calculator:
     def __init__(self, p, p_bm=None, r_rf=None, t=None, period=None):
-        self.pf = AcceleratedCalSeries(p=p) if type(p) is not AcceleratedCalSeries else p
-        self.bm = AcceleratedCalSeries(p_bm=p_bm) if type(p_bm) is not AcceleratedCalSeries else p_bm
-        self.rf = AcceleratedCalSeries(r_rf=r_rf) if type(p_bm) is not AcceleratedCalSeries else r_rf
+        self.pf = p if isinstance(p, AcceleratedCalSeries) else AcceleratedCalSeries(p=p)
+        self.bm = p_bm if isinstance(p_bm, AcceleratedCalSeries) else AcceleratedCalSeries(p_bm=p_bm)
+        self.rf = r_rf if isinstance(r_rf, AcceleratedCalSeries) else AcceleratedCalSeries(r_rf=r_rf)
         self.t = t
         self.period = period
 

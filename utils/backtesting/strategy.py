@@ -2,21 +2,9 @@ import calendar as cld
 import datetime as dt
 import pandas as pd
 from dateutil.relativedelta import relativedelta
-from typing import Union
-from utils.algorithm.perf import api
-from utils.backtesting.basetype import Stocks
+from utils.algorithm.perf.impl import api
+from utils.backtesting.basetype import Stocks, BaseStrategy
 from utils.decofactory import common
-
-TimeType = Union[dt.date, dt.datetime]
-
-
-class BaseStrategy:
-    def __init__(self, start: TimeType = None, end: TimeType = None):
-        self.start = start
-        self.end = end
-
-    def position(self, *args, **kwargs):
-        pass
 
 
 class T1(BaseStrategy):

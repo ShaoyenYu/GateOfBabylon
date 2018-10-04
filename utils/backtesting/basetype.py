@@ -1,11 +1,14 @@
 import datetime as dt
 import numpy as np
 from abc import ABC, abstractmethod
+from typing import Union
 from utils.backtesting import loader
 from utils.algorithm.perf import api
 from utils.configcenter import config as cfg
 from utils.decofactory import common
 from utils.timeutils.basetype import TsProcessor
+
+TimeType = Union[dt.date, dt.datetime]
 
 
 class Position(ABC, TsProcessor):
@@ -131,3 +134,12 @@ class RiskfreeBenchmark(Position):
     @common.unhash_cache()
     def return_series(self):
         return self.original_series[1:]
+
+
+class BaseStrategy:
+    def __init__(self, start: TimeType = None, end: TimeType = None):
+        self.start = start
+        self.end = end
+
+    def position(self, *args, **kwargs):
+        pass
