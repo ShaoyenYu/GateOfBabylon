@@ -20,9 +20,11 @@ class TechIndicatorMixin:
         self._bm = bm
         self._bm_rf = bm_rf or RiskfreeBenchmark(None, self.start, self.end, self.freq)
 
-    @classmethod
-    def flush(cls):
-        getattr(cls, "_perf", {}).clear()
+    def flush(self):
+        try:
+            delattr(self, "_perf")
+        except AttributeError:
+            pass
 
     @property
     def bm(self):
@@ -53,6 +55,7 @@ class TechIndicatorMixin:
             kws["p_bm"] = self._bm.price_series.values
         kws["r_rf"] = self._bm_rf.return_series.values
 
+        print(kws)
         return kws
 
     @property
