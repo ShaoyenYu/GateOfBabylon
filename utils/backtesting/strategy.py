@@ -28,7 +28,7 @@ class T1(BaseStrategy):
         return self._signal_by(self.stocks.return_series.dropna(axis=1, how="any"), wl)
 
     def trans_signal(self, wl):
-        return self._signal_by(self.stocks.turnover_series.dropna(axis=1, how="any"), wl)
+        return self._signal_by(self.stocks.turnover_series("b").dropna(axis=1, how="any"), wl)
 
     @common.unhash_clscache()
     def signal(self, wl):

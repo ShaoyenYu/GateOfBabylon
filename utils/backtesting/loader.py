@@ -1,7 +1,20 @@
 import datetime as dt
+import numpy as np
 import pandas as pd
 from utils.configcenter import config as cfg
 from utils.sqlfactory import constructor
+
+from functools import wraps
+
+
+def debug(func):
+    @wraps(func)
+    def wrapper(this, *args, **kwargs):
+        print(f"loading data...({this.__class__}.{func.__name__})")
+        res = func(this, *args, **kwargs)
+        print(f"done...({func.__name__})")
+        return res
+    return wrapper
 
 
 class TsLoader:
@@ -13,6 +26,18 @@ class TsLoader:
 
 
 class StockDataLoader(TsLoader):
+    @debug
+    def load_listeddate(self):
+        sql = f"SELECT `stock_id`, `initial_public_date` as `listed_date` " \
+              f"FROM babylon.stock_info " \
+              f"WHERE `stock_id` in ({constructor.sqlfmt(self.ids)})"
+        df = pd.read_sql(sql, self.engine)
+        df["listed_date"] = df["listed_date"].values.astype(np.datetime64)
+        df.index = df["listed_date"]
+
+        return df.pivot(columns="stock_id", values="listed_date").ffill()
+
+    @debug
     def load_price(self):
         sql = "SELECT stock_id, date, close as value " \
               "FROM babylon.stock_kdata_d " \
@@ -22,6 +47,7 @@ class StockDataLoader(TsLoader):
 
         return df.pivot(index="date", columns="stock_id", values="value")
 
+    @debug
     def load_turnover(self, bs):
         types = {"b": "买盘", "s": "卖盘", "m": "中性"}
         sql = "SELECT stock_id, date, volume as value " \
@@ -33,12 +59,14 @@ class StockDataLoader(TsLoader):
 
         return df.pivot(index="date", columns="stock_id", values="value")
 
+    @debug
     def load_type_sws(self):
         sql = f"SELECT stock_id, type_name FROM stock_type_sws WHERE stock_id IN ({constructor.sqlfmt(self.ids)})"
         df = pd.read_sql(sql, self.engine)
 
         return dict(zip(df["stock_id"], df["type_name"]))
 
+    @debug
     def load_riskfree(self):
         sql = f"SELECT date, y1 as value " \
               f"FROM ratio_treasury_bond " \
@@ -49,6 +77,7 @@ class StockDataLoader(TsLoader):
 
 
 class BenchmarkLoader(TsLoader):
+    @debug
     def load_price(self):
         sql = "SELECT index_id, date, close as value " \
               "FROM index_kdata_d " \
@@ -60,6 +89,7 @@ class BenchmarkLoader(TsLoader):
 
 
 class RiskfreeBenchmark(TsLoader):
+    @debug
     def load_return(self):
         sql = f"SELECT {constructor.sqlfmt(self.ids, 'col')}, `date` " \
               f"FROM ratio_treasury_bond " \

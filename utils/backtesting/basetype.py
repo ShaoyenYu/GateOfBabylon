@@ -11,12 +11,63 @@ from utils.timeutils.basetype import TsProcessor
 TimeType = Union[dt.date, dt.datetime]
 
 
-class Position(ABC, TsProcessor):
+class TechIndicatorMixin:
     freq2period = {"d": 250, "w": 52, "m": 12}
 
-    def __init__(self, positions=None, start=None, end=None, freq="d"):
+    start = end = freq = price_series = time_series = None
+
+    def __init__(self, bm=None, bm_rf=None):
+        self._bm = bm
+        self._bm_rf = bm_rf or RiskfreeBenchmark(None, self.start, self.end, self.freq)
+
+    @classmethod
+    def flush(cls):
+        getattr(cls, "_perf", {}).clear()
+
+    @property
+    def bm(self):
+        return self._bm
+
+    @bm.setter
+    def bm(self, value):
+        self._bm = value
+        self.flush()
+
+    @property
+    def bm_rf(self):
+        return self._bm_rf
+
+    @bm_rf.setter
+    def bm_rf(self, value):
+        self._bm_rf = value
+        self.flush()
+
+    @property
+    def load_args(self):
+        kws = {
+            "p": self.price_series.values,
+            "t": np.array([x.timestamp() for x in self.time_series.to_pydatetime()]),
+            "period": self.freq2period[self.freq[:1].lower()],
+        }
+        if self._bm:
+            kws["p_bm"] = self._bm.price_series.values
+        kws["r_rf"] = self._bm_rf.return_series.values
+
+        return kws
+
+    @property
+    @common.unhash_clscache()
+    def perf(self):
+        return api.Calculator(**self.load_args)
+
+    @property
+    def cumret(self):
+        return np.nanmean(self.perf.accumulative_return)
+
+
+class FinTimeSeries(TsProcessor, ABC):
+    def __init__(self, start, end, freq):
         TsProcessor.__init__(self, start, end, freq)
-        self.positions = positions
 
     @property
     @abstractmethod
@@ -31,69 +82,56 @@ class Position(ABC, TsProcessor):
     def time_series(self):
         return self.price_series.index
 
-    @property
-    def _default_perf_args(self):
-        kw = {
-            "p": self.price_series.values,
-            "t": np.array([x.timestamp() for x in self.time_series.to_pydatetime()]),
-            "period": self.freq2period[self.freq[:1].lower()]
-        }
-        return kw
 
-    @property
-    def perf_args(self):
-        return self._default_perf_args
-
-    @property
-    @common.unhash_clscache()
-    def perf(self):
-        return api.Calculator(**self.perf_args)
-
-    @property
-    def cumret(self):
-        return np.nanmean(self.perf.accumulative_return)
+class Position(FinTimeSeries, ABC):
+    def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None):
+        FinTimeSeries.__init__(self, start, end, freq)
+        self.positions = positions
 
 
-class Stocks(Position):
+class Stocks(Position, TechIndicatorMixin):
     engine = cfg.default_engine
 
-    def __init__(self, positions=None, start=None, end=None, freq="d"):
+    def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None):
         if positions is None:
-            sql = "SELECT DISTINCT stock_id FROM stock_info " \
-                  "WHERE name NOT LIKE '*%%' " \
-                  f"AND initial_public_date < '{start - dt.timedelta(180)}'"
+            sql = "SELECT DISTINCT stock_id FROM `babylon`.`stock_info` "
             positions = [x[0] for x in cfg.default_engine.execute(sql).fetchall()]
+        if not bm:
+            bm = Benchmark(["000300"], start, end, freq)
 
         self.data_loader = loader.StockDataLoader(positions, start, end)
-        Position.__init__(self, positions, start, end, freq)
+        Position.__init__(self, positions, start, end, freq, bm, bm_rf)
+        TechIndicatorMixin.__init__(self, bm, bm_rf)
+
+    @property
+    def mask(self):
+        from pandas import DataFrame
+        from numpy import timedelta64
+        df_ld = self.data_loader.load_listeddate()
+        v = ((df_ld.index.values.reshape(len(df_ld), 1) - df_ld.values) / (86400 * 1e9)) > timedelta64(180)
+        return DataFrame(v, df_ld.index, df_ld.columns)
 
     @property
     @common.unhash_clscache()
     def price_series(self):
-        return self.resample(self.data_loader.load_price(), self.freq)
+        p = self.resample(self.data_loader.load_price(), self.freq)
+        m = self.mask.reindex_like(p).ffill()
+        return p.where(m).dropna(how="all", axis=1)
 
-    @property
-    @common.unhash_clscache()
-    def turnover_series(self):
-        return self.data_loader.load_turnover("b")
+    @common.hash_clscache(paramhash=True)
+    def turnover_series(self, bs="b"):
+        return self.data_loader.load_turnover(bs)
 
     @property
     @common.unhash_clscache()
     def type_sws(self):
         return self.data_loader.load_type_sws()
 
-    @property
-    def perf_args(self):
-        bm = Benchmark(None, self.start, self.end, self.freq)
-        bmrf = RiskfreeBenchmark(None, self.start, self.end, self.freq)
-        return {**self._default_perf_args, "p_bm": bm.price_series.values, "r_rf": bmrf.return_series.values}
 
-
-class Benchmark(Position):
-    def __init__(self, positions=None, start=None, end=None, freq="d"):
-        positions = positions or ["000300"]
-
-        Position.__init__(self, positions, start, end, freq)
+class Benchmark(Position, TechIndicatorMixin):
+    def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None):
+        Position.__init__(self, positions or ["000300"], start, end, freq, bm, bm_rf)
+        TechIndicatorMixin.__init__(self, bm, bm_rf)
         self.data_loader = loader.BenchmarkLoader(positions, start, end)
 
     @property
@@ -101,18 +139,12 @@ class Benchmark(Position):
     def price_series(self):
         return self.resample(self.data_loader.load_price(), self.freq)
 
-    @property
-    def perf_args(self):
-        bmrf = RiskfreeBenchmark(None, self.start, self.end, self.freq)
-        return {**self._default_perf_args, "r_rf": bmrf.return_series.values}
-
 
 class RiskfreeBenchmark(Position):
     trans = {"d": 250, "w": 52, "m": 12}
 
     def __init__(self, positions=None, start=None, end=None, freq="d"):
         positions = positions or ["y1"]
-
         Position.__init__(self, positions, start, end, freq)
         self.data_loader = loader.RiskfreeBenchmark(positions, start, end)
 
