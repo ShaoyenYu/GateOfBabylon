@@ -8,6 +8,7 @@ import pickle
 
 def log(f):
     module_name = os.path.basename(sys.argv[0])
+
     # mod = sys.modules["__main__"]
     # file = getattr(mod, '__file__', None)
     # module_name = file and os.path.splitext(os.path.basename(file))[0]
@@ -19,10 +20,11 @@ def log(f):
         print(f"TIME: {dt.datetime.now()}; SCRIPT_NAME: {module_name}; Done;")
 
         return res
+
     return wrapper
 
 
-def hash_cache(cacheattr=None, paramhash=False, selfhash=False, maxcache=-1):
+def hash_clscache(cacheattr=None, paramhash=False, selfhash=False, maxcache=-1):
     """
         Cache decorator for class instance, with different level of cache strategy.
     Args:
@@ -59,11 +61,13 @@ def hash_cache(cacheattr=None, paramhash=False, selfhash=False, maxcache=-1):
                 setattr(this, cachewhere, {hash_key: func(this, *args, **kwargs)})
 
             return getattr(this, cachewhere)[hash_key]
+
         return wrapper
+
     return _cache
 
 
-def unhash_cache(prefix="_", suffix=""):
+def unhash_clscache(prefix="_", suffix=""):
     def _cache(func):
         @wraps(func)
         def wrapper(this, *args, **kwargs):
@@ -72,5 +76,20 @@ def unhash_cache(prefix="_", suffix=""):
                 setattr(this, fn, func(this, *args, **kwargs))
 
             return getattr(this, fn)
+
         return wrapper
+
     return _cache
+
+
+def cache(func):
+    cached = {}
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        hash_key = hashlib.md5(pickle.dumps((args, kwargs))).hexdigest()
+        if hash_key not in cached:
+            cached[hash_key] = func(*args, **kwargs)
+        return cached[hash_key]
+
+    return wrapper

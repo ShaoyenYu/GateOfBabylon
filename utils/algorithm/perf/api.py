@@ -1,6 +1,6 @@
 from utils.algorithm.perf.impl import api
 from utils.decofactory.scic import sample_check, align, auto
-from utils.decofactory.common import unhash_cache
+from utils.decofactory.common import unhash_clscache
 import numpy as np
 
 ERROR_VAL = np.nan
@@ -119,17 +119,17 @@ class AcceleratedCalSeries:
         self.r_rf = r_rf
 
     @property
-    @unhash_cache()
+    @unhash_clscache()
     def p_rf(self):
         return np.array([1, *(1 + np.nancumsum(self.r_rf))])
 
     @property
-    @unhash_cache()
+    @unhash_clscache()
     def r(self):
         return self.p[1:] / self.p[:-1] - 1
 
     @property
-    @unhash_cache()
+    @unhash_clscache()
     def r_bm(self):
         return self.p_bm[1:] / self.p_bm[:-1] - 1
 

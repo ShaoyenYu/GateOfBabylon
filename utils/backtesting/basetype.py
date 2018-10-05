@@ -45,7 +45,7 @@ class Position(ABC, TsProcessor):
         return self._default_perf_args
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def perf(self):
         return api.Calculator(**self.perf_args)
 
@@ -68,17 +68,17 @@ class Stocks(Position):
         Position.__init__(self, positions, start, end, freq)
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def price_series(self):
         return self.resample(self.data_loader.load_price(), self.freq)
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def turnover_series(self):
         return self.data_loader.load_turnover("b")
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def type_sws(self):
         return self.data_loader.load_type_sws()
 
@@ -97,7 +97,7 @@ class Benchmark(Position):
         self.data_loader = loader.BenchmarkLoader(positions, start, end)
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def price_series(self):
         return self.resample(self.data_loader.load_price(), self.freq)
 
@@ -117,21 +117,21 @@ class RiskfreeBenchmark(Position):
         self.data_loader = loader.RiskfreeBenchmark(positions, start, end)
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def original_series(self):
         df = self.data_loader.load_return()
         df /= (100 * self.trans[self.freq[:1].lower()])
         return self.resample(df, self.freq)
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def price_series(self):
         df = self.original_series.copy()
         df.iloc[0] = 0
         return 1 + df.cumsum()
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def return_series(self):
         return self.original_series[1:]
 

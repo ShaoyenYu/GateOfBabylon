@@ -30,7 +30,7 @@ class T1(BaseStrategy):
     def trans_signal(self, wl):
         return self._signal_by(self.stocks.turnover_series.dropna(axis=1, how="any"), wl)
 
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def signal(self, wl):
         return self.price_signal(wl) * self.trans_signal(wl)
 
@@ -108,7 +108,7 @@ class T2(BaseStrategy):
         return type_first10.to_dict()
 
     @property
-    @common.unhash_cache()
+    @common.unhash_clscache()
     def position(self):
         res = self.by_return()
         tmp = set()
