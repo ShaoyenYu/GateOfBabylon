@@ -95,7 +95,7 @@ class VarTimeSeries:
         return hash((self.start, self.end))
 
 
-class TsProcessor:
+class TsProcessMixin:
     def __init__(self, start: dt.datetime, end: dt.datetime, freq: str=None):
         self.start = start
         self.end = end

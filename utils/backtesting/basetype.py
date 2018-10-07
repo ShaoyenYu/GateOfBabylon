@@ -2,11 +2,11 @@ import datetime as dt
 import numpy as np
 from abc import ABC, abstractmethod
 from typing import Union
-from utils.backtesting import loader
 from utils.algorithm.perf import api
+from utils.backtesting import loader
 from utils.configcenter import config as cfg
 from utils.decofactory import common
-from utils.timeutils.basetype import TsProcessor
+from utils.timeutils.basetype import TsProcessMixin
 
 TimeType = Union[dt.date, dt.datetime]
 
@@ -33,7 +33,7 @@ class TechIndicatorMixin:
     @bm.setter
     def bm(self, value):
         self._bm = value
-        self.flush()
+        self.flush()  # when benchmark is reset, calculation cache should be flush
 
     @property
     def bm_rf(self):
@@ -42,10 +42,10 @@ class TechIndicatorMixin:
     @bm_rf.setter
     def bm_rf(self, value):
         self._bm_rf = value
-        self.flush()
+        self.flush()    # when risk-free-benchmark is reset, calculation cache should be flush
 
     @property
-    def load_args(self):
+    def calargs(self):
         kws = {
             "p": self.price_series.values,
             "t": np.array([x.timestamp() for x in self.time_series.to_pydatetime()]),
@@ -55,22 +55,21 @@ class TechIndicatorMixin:
             kws["p_bm"] = self._bm.price_series.values
         kws["r_rf"] = self._bm_rf.return_series.values
 
-        print(kws)
         return kws
 
     @property
     @common.unhash_clscache()
     def perf(self):
-        return api.Calculator(**self.load_args)
+        return api.Calculator(**self.calargs)
 
     @property
     def cumret(self):
         return np.nanmean(self.perf.accumulative_return)
 
 
-class FinTimeSeries(TsProcessor, ABC):
+class FinTimeSeries(TsProcessMixin, ABC):
     def __init__(self, start, end, freq):
-        TsProcessor.__init__(self, start, end, freq)
+        TsProcessMixin.__init__(self, start, end, freq)
 
     @property
     @abstractmethod
@@ -87,11 +86,12 @@ class FinTimeSeries(TsProcessor, ABC):
 
 
 class Position(FinTimeSeries, ABC):
-    def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None):
+    def __init__(self, positions=None, start=None, end=None, freq="d"):
         FinTimeSeries.__init__(self, start, end, freq)
         self.positions = positions
 
 
+# real object
 class Stocks(Position, TechIndicatorMixin):
     engine = cfg.default_engine
 
@@ -171,6 +171,7 @@ class RiskfreeBenchmark(Position):
         return self.original_series[1:]
 
 
+# strategy prototype
 class BaseStrategy:
     def __init__(self, start: TimeType = None, end: TimeType = None):
         self.start = start
