@@ -272,7 +272,7 @@ class TickCrawler(BaseCrawler):
 
         """
         try:
-            res = ts.get_tick_data(code, date2str(date), src="tt", pause=2, retry_count=10)
+            res = ts.get_tick_data(code, date2str(date), src="tt", pause=2, retry_count=30)
             if res.loc[0, "time"] == 'alert("当天没有数据");':  # 该参数下无正确数据返回
                 return pd.DataFrame(columns=[cls.code_name, "time", "price", "change", "vaolume", "amount", "type"])
 
