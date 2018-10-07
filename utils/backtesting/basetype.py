@@ -103,7 +103,7 @@ class Stocks(Position, TechIndicatorMixin):
             bm = Benchmark(["000300"], start, end, freq)
 
         self.data_loader = loader.StockDataLoader(positions, start, end)
-        Position.__init__(self, positions, start, end, freq, bm, bm_rf)
+        Position.__init__(self, positions, start, end, freq)
         TechIndicatorMixin.__init__(self, bm, bm_rf)
 
     @property
@@ -133,7 +133,7 @@ class Stocks(Position, TechIndicatorMixin):
 
 class Benchmark(Position, TechIndicatorMixin):
     def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None):
-        Position.__init__(self, positions or ["000300"], start, end, freq, bm, bm_rf)
+        Position.__init__(self, positions or ["000300"], start, end, freq)
         TechIndicatorMixin.__init__(self, bm, bm_rf)
         self.data_loader = loader.BenchmarkLoader(positions, start, end)
 
