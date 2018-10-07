@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from functools import wraps
 from utils.configcenter import config as cfg
-from utils.sqlfactory import constructor
+from utils.sql import constructor
 
 
 def debug(func):

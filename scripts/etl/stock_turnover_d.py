@@ -3,7 +3,7 @@ import pandas as pd
 from multiprocessing.dummy import Pool as ThreadPool
 from utils.io import sql
 from utils.configcenter import config as cfg
-from utils.sqlfactory import constructor
+from utils.sql import constructor
 
 
 ENGINE = cfg.default_engine
