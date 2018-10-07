@@ -1,10 +1,9 @@
 import datetime as dt
 import numpy as np
 import pandas as pd
+from functools import wraps
 from utils.configcenter import config as cfg
 from utils.sqlfactory import constructor
-
-from functools import wraps
 
 
 def debug(func):
@@ -14,6 +13,7 @@ def debug(func):
         res = func(this, *args, **kwargs)
         print(f"done...({func.__name__})")
         return res
+
     return wrapper
 
 
@@ -24,18 +24,25 @@ class TsLoader:
         self.end = end
         self.engine = engine or cfg.default_engine
 
+    @staticmethod
+    def date2datetime64(dataframe):
+        return pd.DataFrame(dataframe, dataframe.index.astype("M8[ns]"), dataframe.columns)
+
 
 class StockDataLoader(TsLoader):
     @debug
     def load_listeddate(self):
-        sql = f"SELECT `stock_id`, `initial_public_date` as `listed_date` " \
-              f"FROM babylon.stock_info " \
+        sql = "SELECT `stock_id`, `initial_public_date` as `listed_date` " \
+              "FROM babylon.stock_info " \
               f"WHERE `stock_id` in ({constructor.sqlfmt(self.ids)})"
-        df = pd.read_sql(sql, self.engine)
+        df = pd.read_sql(sql, self.engine).dropna(subset=["listed_date"])
+
         df["listed_date"] = df["listed_date"].values.astype(np.datetime64)
         df.index = df["listed_date"]
 
-        return df.pivot(columns="stock_id", values="listed_date").ffill()
+        df = df.pivot(columns="stock_id", values="listed_date")
+        df = df.reindex(pd.date_range(df.index[0], df.index[-1], freq="d")).ffill()  # to hold a full date range
+        return df
 
     @debug
     def load_price(self):
@@ -45,7 +52,7 @@ class StockDataLoader(TsLoader):
               f"AND date BETWEEN '{self.start}' AND '{self.end}'"
         df = pd.read_sql(sql, self.engine)
 
-        return df.pivot(index="date", columns="stock_id", values="value")
+        return self.date2datetime64(df.pivot(index="date", columns="stock_id", values="value"))
 
     @debug
     def load_turnover(self, bs):
@@ -57,7 +64,7 @@ class StockDataLoader(TsLoader):
               f"AND type = '{types[bs]}'"
         df = pd.read_sql(sql, self.engine)
 
-        return df.pivot(index="date", columns="stock_id", values="value")
+        return self.date2datetime64(df.pivot(index="date", columns="stock_id", values="value"))
 
     @debug
     def load_type_sws(self):
@@ -72,8 +79,9 @@ class StockDataLoader(TsLoader):
               f"FROM ratio_treasury_bond " \
               f"WHERE date BETWEEN '{self.start}' AND '{self.end}'"
         df = pd.read_sql(sql, self.engine)
+        self.date2datetime64(df)
 
-        return df.set_index("date")["value"]
+        return self.date2datetime64(df.set_index("date")["value"])
 
 
 class BenchmarkLoader(TsLoader):
@@ -85,7 +93,7 @@ class BenchmarkLoader(TsLoader):
               f"AND date BETWEEN '{self.start}' AND '{self.end}'"
         df = pd.read_sql(sql, self.engine)
 
-        return df.pivot(index="date", columns="index_id", values="value")
+        return self.date2datetime64(df.pivot(index="date", columns="index_id", values="value"))
 
 
 class RiskfreeBenchmark(TsLoader):
@@ -96,4 +104,4 @@ class RiskfreeBenchmark(TsLoader):
               f"WHERE date BETWEEN '{self.start}' AND '{self.end}'"
         df = pd.read_sql(sql, self.engine)
 
-        return df.set_index("date")
+        return self.date2datetime64(df.set_index("date"))
