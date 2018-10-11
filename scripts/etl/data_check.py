@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import datetime as dt
 from functools import partial
@@ -55,25 +54,18 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
         g = res.groupby(["t", "delta"])["_"].sum()
         return g
 
-    dates = pd.date_range(start, end, freq=const.bday_chn)
+    dates = pd.date_range(start, end, freq=const.bday_chn)[::-1]
+    results = []
     for date in dates:
-        print(fetch(date))
+        tmp = fetch(date)
+        print(tmp)
+        results.append(tmp)
 
-    # def stats():
-    #     res = fetch()
-    #     grouped = res[res["cnt"].isna()].groupby("t")
-    #
-    #     s1 = grouped["t"].count()
-    #     s2 = grouped["stock_id"].apply(lambda x: ",".join(sorted(x)))
-    #     s3 = pd.Series(s1 / len(stocks_to_test), name="t_pct")
-    #     return pd.concat([s1, s2, s3], axis=1)
-
-    return fetch()
+    return results
 
 
 def main():
-    # start, end = dt.datetime(2017, 10, 1), dt.datetime(2017, 10, 30)
-    start, end = dt.datetime(2018, 10, 8), dt.datetime(2018, 10, 10)
+    start, end = dt.datetime(2018, 6, 1), dt.datetime(2018, 10, 11)
     check_tickdata(start, end)
 
     # import tushare as ts

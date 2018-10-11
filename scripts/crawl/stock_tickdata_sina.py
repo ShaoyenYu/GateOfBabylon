@@ -1,6 +1,9 @@
 import datetime as dt
 import re
 import requests
+import pandas as pd
+import numpy as np
+from functools import reduce
 from lxml import html
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -45,15 +48,10 @@ def get_tick_data(code, date):
             is_valid(vals_tr, vals_th)
 
             res = [[vals_th[i], *vals_tr[i * 4: (i + 1) * 4]] for i in range(len(vals_th))]
-            print(res)
             return res
         except Exception as e:
             print(resp.status_code, resp.reason)
             print(page_no, e)
-
-    def collect(l):
-        nonlocal res
-        res.extend(l)
 
     y, m, d = [str(x).zfill(2) for x in date.timetuple()[:3]]
     api_main = f"http://market.finance.sina.com.cn/transHis.php?symbol={code}&date={y}-{m}-{d}"
@@ -62,21 +60,29 @@ def get_tick_data(code, date):
         "Accept-Encoding": "gzip, deflate",
         "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
         "Cache-Control": "max-age=0",
+        "Referer": f"{api_main}&page={0}",
         "Connection": "keep-alive",
+        # "Cookie": "Cookie: UOR=www.google.com,finance.sina.com.cn,; U_TRS1=000000a1.f3f5582a.5bba264b.fbc7b39c;"
+        #           " SR_SEL=1_511; SINAGLOBAL=61.171.95.161_1538926156.673167;"
+        #           " SUB=_2AkMs5rvkf8NxqwJRmPEVxG_gaYlxzAHEieKauko_JRMyHRl-yD83qm8-tRB6B2aVC5HGz75O1nOJ1qupVUQmaSEV6p34; SUBP=0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWiwiMLZfZCqLfR.J4obNji; FINA_V5_HQ=0; FINA_DMHQ=1; lxlrttp=1538731187; U_TRS2=000000a1.ec3712e7.5bbdfb66.406397c8; Apache=10.71.2.96_1539177602.641546; FINANCE2=5b12a7c18dd931a12e4b6bace03ef18d; vjuids=201c3f19e.1665e22295d.0.99774df313e61; vjlast=1539177589.1539177589.30; sinaH5EtagStatus=y; ULV=1539177611499:6:6:6:10.71.2.96_1539177602.641546:1539177559037; FIN_ALL_VISITED=sz000001%2Csh000001%2Csz000063%2Csz002939; FINA_V_S_2=sz000001,sh000001,sz000008,sz000590,sz000063,sz000591,sz002939",
         "Host": "market.finance.sina.com.cn",
         "Upgrade-Insecure-Requests": "1",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
     }
 
-    res = []
-    pool = ThreadPool(25)
     total_pages = get_total_page()
     print(f"total_pages: {total_pages}")
-    for page in range(1, total_pages + 1):
-        pool.apply_async(get_data(page), callback=collect)
-    pool.close()
-    pool.join()
-    return res
+    with ThreadPool(200) as pool:
+        results = pool.map(get_data, range(1, total_pages + 1))
+    results = reduce(lambda l1, l2: [*l1, *l2], results)
+    df_res = pd.DataFrame(results, columns=["time", "close", "change", "volume", "amount"])
+
+    df_res["time"] = df_res["time"].apply(lambda x: f"{y}-{m}-{d} {x}")
+    df_res["change"] = df_res["change"].replace("--", np.nan).astype(np.float)
+    df_res["volume"] = df_res["volume"].replace("--", np.nan).astype(np.float)
+    df_res["amount"] = df_res["amount"].apply(lambda x: np.float(x.replace(",", "")))
+
+    return df_res
 
 
 def main():
