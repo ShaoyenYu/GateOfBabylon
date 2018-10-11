@@ -11,7 +11,7 @@ from scripts.etl import (
 from scripts.crawl import (
     stock_info_hist, stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d,
     index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d,
-    stock_tickdata_d, ratio_treasury_bond
+    stock_tickdata_ts, ratio_treasury_bond
 )
 
 jobstores = {
@@ -55,7 +55,7 @@ def main():
     scheduler.add_job(ratio_treasury_bond.main, "cron", day_of_week="mon-sun", hour="18,19", minute="10")
 
     # Crawl stock tick data
-    scheduler.add_job(stock_tickdata_d.main, "cron", day_of_week="mon-sun", hour="19", minute="5")
+    scheduler.add_job(stock_tickdata_ts.main, "cron", day_of_week="mon-sun", hour="19", minute="5")
 
     # Configure & Start
     scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
