@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
-from functools import partial, reduce
+from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 from utils.configcenter import config as cfg
 from utils.timeutils import const
@@ -13,7 +13,9 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
     stocks_to_test = ("000001", "600000", "002766", "002777", "002598", "601727")
     stocks_to_test = pd.read_sql("SELECT stock_id FROM stock_info", engine)["stock_id"].tolist()
 
-    def fetch_one(date, stock_id):
+    def fetch_one(stock_id, date):
+        # print(date, stock_id)
+
         def _fill(df_tmp):
             if len(df_tmp) == 0:
                 df_tmp = df_tmp.reindex(index=[0])
@@ -35,13 +37,13 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
         df1, df2 = (_fill(x) for x in (df1, df2))
         return df1, df2,
 
-    def fetch():
-        p = ThreadPool(20)
-        dates = pd.date_range(start, end, freq=const.bday_chn)
+    def fetch(date):
+        p = ThreadPool(100)
         res = []
-        for stock_id in stocks_to_test:
-            f = partial(fetch_one, stock_id=stock_id)
-            res.extend(p.map(f, dates))
+        f = partial(fetch_one, date=date)
+        res.extend(p.map(f, stocks_to_test))
+        p.close()
+        p.join()
         res1 = pd.concat([x[0] for x in res])
         res2 = pd.concat([x[1] for x in res])
 
@@ -50,9 +52,12 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
         res["cnt_y"] = res["cnt_y"].apply(lambda x: int(x > 0))
         res["delta"] = list(map(lambda x, y: f"{x}{y}", res["cnt_x"], res["cnt_y"]))
         res["_"] = 1
-        res.groupby(["t", "delta"])["_"].sum()
-        # errs[""]
-        return res
+        g = res.groupby(["t", "delta"])["_"].sum()
+        return g
+
+    dates = pd.date_range(start, end, freq=const.bday_chn)
+    for date in dates:
+        print(fetch(date))
 
     # def stats():
     #     res = fetch()
@@ -69,10 +74,10 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
 def main():
     # start, end = dt.datetime(2017, 10, 1), dt.datetime(2017, 10, 30)
     start, end = dt.datetime(2018, 10, 8), dt.datetime(2018, 10, 10)
-    print(check_tickdata(start, end))
+    check_tickdata(start, end)
 
-    import tushare as ts
-    ts.get_tick_data()
+    # import tushare as ts
+    # ts.get_tick_data()
     # ts.get_tick_data("600399", "2017-12-05", src="tt")
     # ts.set_token("a3a0919479f5cda6382245a184c405856f805e090529c1bed7c31036")
     # pro = ts.pro_api()
