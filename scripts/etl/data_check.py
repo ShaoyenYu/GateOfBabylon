@@ -52,20 +52,29 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
         res["delta"] = list(map(lambda x, y: f"{x}{y}", res["cnt_x"], res["cnt_y"]))
         res["_"] = 1
         g = res.groupby(["t", "delta"])["_"].sum()
-        return g
+
+        err_stocks = None
+        if "10" in g.index.levels[1]:
+            err_stocks = res.loc[res["delta"] == "10"]["stock_id"].tolist()
+
+        return g, err_stocks
 
     dates = pd.date_range(start, end, freq=const.bday_chn)
-    results = []
+    # results = []
     for date in dates:
-        tmp = fetch(date)
+        tmp, err_s = fetch(date)
         print(tmp)
-        results.append(tmp)
+        if err_s is not None:
+            from crawler.tucrawler.basetype import StockTickCrawler
+            from scripts.etl import stock_turnover_d
+            t = date.to_pydatetime()
+            StockTickCrawler(err_s, date_start=t, date_end=t).crawl()
+            stock_turnover_d.main(t, t)
 
-    return results
 
 
 def main():
-    start, end = dt.datetime(2017, 6, 27), dt.datetime(2017, 6, 27)
+    start, end = dt.datetime(2018, 6, 25), dt.datetime(2018, 6, 25)
     check_tickdata(start, end)
 
 

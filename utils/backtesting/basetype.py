@@ -42,7 +42,7 @@ class TechIndicatorMixin:
     @bm_rf.setter
     def bm_rf(self, value):
         self._bm_rf = value
-        self.flush()    # when risk-free-benchmark is reset, calculation cache should be flush
+        self.flush()  # when risk-free-benchmark is reset, calculation cache should be flush
 
     @property
     def calargs(self):
@@ -95,7 +95,7 @@ class Position(FinTimeSeries, ABC):
 class Stocks(Position, TechIndicatorMixin):
     engine = cfg.default_engine
 
-    def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None):
+    def __init__(self, positions=None, start=None, end=None, freq="d", bm=None, bm_rf=None, **kwargs):
         if positions is None:
             sql = "SELECT DISTINCT stock_id FROM `babylon`.`stock_info` "
             positions = [x[0] for x in cfg.default_engine.execute(sql).fetchall()]
@@ -105,6 +105,7 @@ class Stocks(Position, TechIndicatorMixin):
         self.data_loader = loader.StockDataLoader(positions, start, end)
         Position.__init__(self, positions, start, end, freq)
         TechIndicatorMixin.__init__(self, bm, bm_rf)
+        self.use_mask = kwargs.get("use_mask", True)
 
     @property
     def mask(self):
@@ -118,8 +119,11 @@ class Stocks(Position, TechIndicatorMixin):
     @common.unhash_clscache()
     def price_series(self):
         p = self.resample(self.data_loader.load_price(), self.freq)
-        m = self.mask.reindex_like(p).ffill()
-        return p.where(m).dropna(how="all", axis=1)
+
+        if self.use_mask:
+            m = self.mask.reindex_like(p).ffill()
+            p = p.where(m).dropna(how="all", axis=1)
+        return p
 
     @common.hash_clscache(paramhash=True)
     def turnover_series(self, bs="b"):
