@@ -1,0 +1,16 @@
+Scrapy==1.5.0
+wrapcache==1.0.8
+APScheduler==3.3.1
+lxml==4.2.1
+matplotlib==2.1.0rc1
+SQLAlchemy==1.1.12
+openpyxl==2.4.8
+numpy==1.14.0rc1+mkl
+scipy==0.19.1
+pytz==2017.3
+pandas==0.21.1
+xlrd==1.1.0
+requests==2.18.4
+tushare==1.2.12
+PyMySQL==0.7.11
+python_dateutil==2.7.3
