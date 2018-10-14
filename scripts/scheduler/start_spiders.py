@@ -2,7 +2,7 @@ import inspect
 from functools import reduce
 from scrapy.crawler import CrawlerProcess
 from crawler.scrapy_crawler.spiders import (
-    index_csi, stock_finance)
+    index_csi, stock_finance_sina)
 
 
 def fetch_class_in_module(module):
@@ -12,7 +12,7 @@ def fetch_class_in_module(module):
 def main():
     tasks = [
         index_csi,
-        stock_finance
+        # stock_finance
     ]
     spiders = reduce(lambda x, y: [*x, *y], (fetch_class_in_module(mod) for mod in tasks))
     process = CrawlerProcess()

@@ -54,7 +54,7 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
         g = res.groupby(["t", "delta"])["_"].sum()
         return g
 
-    dates = pd.date_range(start, end, freq=const.bday_chn)[::-1]
+    dates = pd.date_range(start, end, freq=const.bday_chn)
     results = []
     for date in dates:
         tmp = fetch(date)
@@ -65,16 +65,8 @@ def check_tickdata(start: dt.datetime, end: dt.datetime):
 
 
 def main():
-    start, end = dt.datetime(2018, 6, 1), dt.datetime(2018, 10, 11)
+    start, end = dt.datetime(2017, 6, 27), dt.datetime(2017, 6, 27)
     check_tickdata(start, end)
-
-    # import tushare as ts
-    # ts.get_tick_data()
-    # ts.get_tick_data("600399", "2017-12-05", src="tt")
-    # ts.set_token("a3a0919479f5cda6382245a184c405856f805e090529c1bed7c31036")
-    # pro = ts.pro_api()
-    #
-    # df = pro.index_weight(index_code='399300.SZ', trade_date='20180903')
 
 
 if __name__ == '__main__':
