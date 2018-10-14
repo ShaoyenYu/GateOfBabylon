@@ -9,11 +9,12 @@ from scripts.etl import (
 )
 
 TASK_GROUPS = {
-    1: (index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d,
+    0: (stock_info_hist,),
+    1: (stock_info,),
+    2: (index_kdata_5, index_kdata_15, index_kdata_30, index_kdata_60, index_kdata_d,
         stock_kdata_5, stock_kdata_15, stock_kdata_30, stock_kdata_60, stock_kdata_d,
-        stock_info_hist, ratio_treasury_bond, stock_tickdata_ts),
+        ratio_treasury_bond, stock_tickdata_ts),
     2: (stock_turnover_d,),
-    3: (stock_info,)
 }
 
 TASKS_NOT_TS = {stock_info}
