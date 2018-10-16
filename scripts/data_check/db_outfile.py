@@ -14,12 +14,14 @@ def main():
     df_tables = df_tables.loc[df_tables["Tables_in_babylon"].apply(
         lambda x: not x.startswith("stock_tickdata_")), "Tables_in_babylon"].tolist()
 
+    df_tables = ["stock_turnover"]
     p = ThreadPool(len(df_tables))
     for table in df_tables:
-        base = f"SELECT * FROM `{table}` INTO OUTFILE 'D:/Downloads/data/bak/{table}.txt'"
-        p.apply_async(out, args=(default_engine, base))
-    p.close()
-    p.join()
+        base = f"SELECT * FROM `babylon`.`{table}` INTO OUTFILE 'D:/Downloads/data/bak/{table}.txt'"
+        out(default_engine, base)
+        # p.apply_async(out, args=(default_engine, base))
+    # p.close()
+    # p.join()
 
 
 if __name__ == '__main__':
